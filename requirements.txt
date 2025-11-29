@@ -1,0 +1,17 @@
+# Core dependencies - Solo las esenciales para que el proyecto funcione
+pandas
+numpy
+requests>=2.31.0
+python-dateutil>=2.8.2
+
+# Database drivers
+# psycopg2-binary>=2.9.9  # Comentado - requiere compilación en Windows
+# Si necesitas PostgreSQL, instala desde: https://www.lfd.uci.edu/~gohlke/pythonlibs/#psycopg
+
+# Opcional - Descomentar si necesitas estas herramientas
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+# mypy>=1.7.0
+# black>=23.12.0
+# flake8>=6.1.0
+# python-dotenv>=1.0.0
