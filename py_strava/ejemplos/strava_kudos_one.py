@@ -4,7 +4,7 @@ import json
 import time
 import sqlite3
 import strava_token_1 as stravaToken
-import strava_bd_1 as stravaBBDD
+import strava_db_sqlite as stravaBBDD
 
 
 #print("refresh token")

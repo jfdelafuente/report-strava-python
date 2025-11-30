@@ -3,7 +3,7 @@ import requests
 import json
 import time
 import sqlite3
-import strava_token_1 as stravaToken
+import strava_token as stravaToken
 
 
 #print("refresh token")

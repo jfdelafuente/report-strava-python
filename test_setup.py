@@ -27,38 +27,38 @@ def test_imports():
         print(f"{check_mark(False)} Error al importar py_strava.config: {e}")
         tests.append(False)
 
-    # Test 2: Import de strava_bd_postgres (opcional si no hay psycopg2)
+    # Test 2: Import de strava_db_postgres (opcional si no hay psycopg2)
     try:
-        from py_strava.strava import strava_bd_postgres
-        print(f"{check_mark(True)} py_strava.strava.strava_bd_postgres importado correctamente")
+        from py_strava.strava import strava_db_postgres
+        print(f"{check_mark(True)} py_strava.strava.strava_db_postgres importado correctamente")
         tests.append(True)
     except ImportError as e:
         if 'psycopg2' in str(e):
-            print(f"[INFO] strava_bd_postgres (requiere psycopg2 - usa SQLite en su lugar)")
+            print(f"[INFO] strava_db_postgres (requiere psycopg2 - usa SQLite en su lugar)")
             tests.append(True)  # No falla el test
         else:
-            print(f"{check_mark(False)} Error al importar strava_bd_postgres: {e}")
+            print(f"{check_mark(False)} Error al importar strava_db_postgres: {e}")
             tests.append(False)
     except Exception as e:
-        print(f"{check_mark(False)} Error al importar strava_bd_postgres: {e}")
+        print(f"{check_mark(False)} Error al importar strava_db_postgres: {e}")
         tests.append(False)
 
-    # Test 3: Import de strava_bd_1
+    # Test 3: Import de strava_db_sqlite
     try:
-        from py_strava.strava import strava_bd_1
-        print(f"{check_mark(True)} py_strava.strava.strava_bd_1 importado correctamente")
+        from py_strava.strava import strava_db_sqlite
+        print(f"{check_mark(True)} py_strava.strava.strava_db_sqlite importado correctamente")
         tests.append(True)
     except Exception as e:
-        print(f"{check_mark(False)} Error al importar strava_bd_1: {e}")
+        print(f"{check_mark(False)} Error al importar strava_db_sqlite: {e}")
         tests.append(False)
 
-    # Test 4: Import de strava_token_1
+    # Test 4: Import de strava_token
     try:
-        from py_strava.strava import strava_token_1
-        print(f"{check_mark(True)} py_strava.strava.strava_token_1 importado correctamente")
+        from py_strava.strava import strava_token
+        print(f"{check_mark(True)} py_strava.strava.strava_token importado correctamente")
         tests.append(True)
     except Exception as e:
-        print(f"{check_mark(False)} Error al importar strava_token_1: {e}")
+        print(f"{check_mark(False)} Error al importar strava_token: {e}")
         tests.append(False)
 
     # Test 5: Import de strava_activities

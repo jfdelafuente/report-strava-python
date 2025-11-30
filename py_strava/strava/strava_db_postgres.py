@@ -1,129 +1,240 @@
 """
-Módulo para gestionar operaciones de base de datos SQLite de forma segura y eficiente.
+Módulo para gestionar operaciones de base de datos PostgreSQL de forma segura y eficiente.
 
-Este módulo proporciona una interfaz de alto nivel para SQLite con:
+Este módulo proporciona una interfaz de alto nivel para PostgreSQL con:
+- Pool de conexiones para mejor rendimiento
 - Context managers para gestión automática de recursos
 - Logging profesional
 - Transacciones batch para mejor rendimiento
 - Prevención de SQL injection con parámetros preparados
-- Configuración optimizada de SQLite
+- API compatible con strava_db_sqlite para intercambiabilidad
 """
 
-import sqlite3
+import psycopg2
+from psycopg2 import pool
+from psycopg2.extras import RealDictCursor
+import json
+import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple, Any, Union
-from contextlib import contextmanager
 
 # Configurar logger para este módulo
 logger = logging.getLogger(__name__)
 
+# Pool global de conexiones
+_connection_pool: Optional[pool.SimpleConnectionPool] = None
+
+
+def _load_credentials() -> Dict[str, Any]:
+    """
+    Carga credenciales desde archivo JSON o variables de entorno.
+
+    Returns:
+        Diccionario con credenciales de PostgreSQL
+
+    Raises:
+        FileNotFoundError: Si no hay archivo ni variables de entorno
+    """
+    credentials_file = Path('./bd/postgres_credentials.json')
+
+    # Intentar leer desde archivo JSON primero
+    if credentials_file.exists():
+        with open(credentials_file, 'r') as f:
+            postgres_credentials = json.load(f)
+            return {
+                'host': postgres_credentials['server'],
+                'database': postgres_credentials['database'],
+                'user': postgres_credentials['username'],
+                'password': postgres_credentials['password'],
+                'port': postgres_credentials['port']
+            }
+    else:
+        # Usar variables de entorno como respaldo
+        try:
+            from py_strava.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+            return {
+                'host': DB_HOST,
+                'database': DB_NAME,
+                'user': DB_USER,
+                'password': DB_PASSWORD,
+                'port': DB_PORT
+            }
+        except ImportError:
+            raise FileNotFoundError(
+                "No se encontró archivo de credenciales ni configuración en variables de entorno. "
+                "Crea './bd/postgres_credentials.json' o configura py_strava.config"
+            )
+
+
+def initialize_pool(minconn: int = 1, maxconn: int = 10) -> None:
+    """
+    Inicializa el pool de conexiones PostgreSQL.
+
+    Esta función debe llamarse una vez al inicio de la aplicación.
+    El pool reutiliza conexiones para mejor rendimiento.
+
+    Args:
+        minconn: Número mínimo de conexiones en el pool
+        maxconn: Número máximo de conexiones en el pool
+
+    Example:
+        >>> # Al inicio de la aplicación
+        >>> initialize_pool(minconn=2, maxconn=10)
+    """
+    global _connection_pool
+
+    if _connection_pool is not None:
+        logger.warning("Pool de conexiones ya inicializado")
+        return
+
+    try:
+        credentials = _load_credentials()
+
+        _connection_pool = pool.SimpleConnectionPool(
+            minconn,
+            maxconn,
+            host=credentials['host'],
+            database=credentials['database'],
+            user=credentials['user'],
+            password=credentials['password'],
+            port=credentials['port']
+        )
+
+        logger.info(
+            f"Pool de conexiones PostgreSQL inicializado "
+            f"(min={minconn}, max={maxconn}, db={credentials['database']})"
+        )
+
+    except Exception as e:
+        logger.error(f"Error inicializando pool de conexiones: {e}")
+        raise
+
+
+def close_pool() -> None:
+    """
+    Cierra el pool de conexiones.
+
+    Debe llamarse al finalizar la aplicación para liberar recursos.
+    """
+    global _connection_pool
+
+    if _connection_pool is not None:
+        _connection_pool.closeall()
+        _connection_pool = None
+        logger.info("Pool de conexiones cerrado")
+
 
 class DatabaseConnection:
     """
-    Gestor de conexiones SQLite con configuración optimizada.
+    Context manager para conexiones PostgreSQL con pool.
 
-    Usa context manager para asegurar que las conexiones se cierren correctamente.
+    Gestiona automáticamente la obtención y devolución de conexiones al pool,
+    además de commit/rollback según el resultado de las operaciones.
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> # Inicializar pool una vez
+        >>> initialize_pool()
+        >>>
+        >>> # Usar context manager
+        >>> with DatabaseConnection() as conn:
         ...     insert(conn, 'activities', {'name': 'Running', 'distance': 5000})
+        ...     # Auto-commit y auto-devolución al pool
     """
 
-    def __init__(self, db_path: str, timeout: float = 5.0):
+    def __init__(self):
+        """Inicializa el context manager."""
+        global _connection_pool
+
+        if _connection_pool is None:
+            # Auto-inicializar pool si no existe
+            initialize_pool()
+
+        self.conn: Optional[psycopg2.extensions.connection] = None
+
+    def __enter__(self) -> psycopg2.extensions.connection:
         """
-        Inicializa la conexión a la base de datos.
+        Obtiene una conexión del pool al entrar en el context manager.
 
-        Args:
-            db_path: Ruta al archivo de base de datos SQLite
-            timeout: Tiempo de espera en segundos para locks
+        Returns:
+            Conexión PostgreSQL del pool
         """
-        self.db_path = db_path
-        self.timeout = timeout
-        self.conn: Optional[sqlite3.Connection] = None
-
-    def __enter__(self) -> sqlite3.Connection:
-        """Abre la conexión al entrar en el context manager."""
-        try:
-            self.conn = sqlite3.connect(self.db_path, timeout=self.timeout)
-
-            # Configuración optimizada de SQLite
-            self.conn.execute("PRAGMA foreign_keys = ON")  # Habilitar foreign keys
-            self.conn.execute("PRAGMA journal_mode = WAL")  # Write-Ahead Logging para mejor concurrencia
-
-            # Row factory para retornar diccionarios en lugar de tuplas
-            self.conn.row_factory = sqlite3.Row
-
-            logger.info(f"Conexión establecida con {self.db_path}")
-            return self.conn
-
-        except sqlite3.Error as e:
-            logger.error(f"Error al conectar con la base de datos {self.db_path}: {e}")
-            raise
+        self.conn = _connection_pool.getconn()
+        logger.debug("Conexión obtenida del pool")
+        return self.conn
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Cierra la conexión al salir del context manager."""
+        """
+        Devuelve la conexión al pool al salir del context manager.
+
+        Hace commit si no hubo errores, rollback si los hubo.
+        """
         if self.conn:
             if exc_type is None:
                 self.conn.commit()
                 logger.debug("Transacción commiteada")
             else:
                 self.conn.rollback()
-                logger.warning("Transacción revertida por error")
+                logger.warning(f"Transacción revertida por error: {exc_val}")
 
-            self.conn.close()
-            logger.info("Conexión cerrada")
+            # Devolver conexión al pool (NO cerrar)
+            _connection_pool.putconn(self.conn)
+            logger.debug("Conexión devuelta al pool")
 
         return False  # No suprimir excepciones
 
 
-def sql_connection(db_path: str, timeout: float = 5.0) -> sqlite3.Connection:
+def sql_connection() -> psycopg2.extensions.connection:
     """
-    Establece una conexión a una base de datos SQLite.
+    Establece conexión con PostgreSQL (legacy function).
 
     NOTA: Para nuevo código, se recomienda usar DatabaseConnection como context manager.
-
-    Args:
-        db_path: Ruta al archivo de base de datos SQLite
-        timeout: Tiempo de espera en segundos para locks
+    Esta función se mantiene para compatibilidad con código existente.
 
     Returns:
-        Objeto de conexión a la base de datos
+        Objeto de conexión PostgreSQL
 
     Raises:
-        sqlite3.Error: Si hay un error al conectar con la base de datos
+        psycopg2.Error: Si hay error al conectar
 
     Example:
-        >>> conn = sql_connection('bd/strava.sqlite')
+        >>> conn = sql_connection()
         >>> try:
-        ...     # Usar la conexión
+        ...     # Usar conexión
         ...     pass
         ... finally:
         ...     conn.close()
     """
+    global _connection_pool
+
+    # Auto-inicializar pool si no existe
+    if _connection_pool is None:
+        initialize_pool()
+
     try:
-        conn = sqlite3.connect(db_path, timeout=timeout)
-        conn.execute("PRAGMA foreign_keys = ON")
-        conn.row_factory = sqlite3.Row
-        logger.info(f"Conexión establecida: {db_path}")
+        conn = _connection_pool.getconn()
+        logger.info("Conexión PostgreSQL establecida (legacy mode)")
         return conn
-    except sqlite3.Error as e:
-        logger.error(f"Error al conectar con la base de datos: {e}")
+
+    except psycopg2.Error as e:
+        logger.error(f"Error al conectar con PostgreSQL: {e}")
         raise
 
 
 def execute(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     sql_statement: str,
     params: Optional[Union[Tuple, List]] = None,
     commit: bool = True
-) -> sqlite3.Cursor:
+) -> psycopg2.extensions.cursor:
     """
-    Ejecuta un statement SQL de forma segura.
+    Ejecuta un statement SQL de forma segura con parámetros preparados.
+
+    PostgreSQL usa %s como placeholder (no ? como SQLite).
 
     Args:
         conn: Conexión activa a la base de datos
-        sql_statement: Statement SQL con placeholders '?'
+        sql_statement: Statement SQL con placeholders '%s'
         params: Parámetros para el statement SQL
         commit: Si True, hace commit automáticamente
 
@@ -131,11 +242,11 @@ def execute(
         Cursor con el resultado de la operación
 
     Raises:
-        sqlite3.Error: Si ocurre un error durante la ejecución
+        psycopg2.Error: Si ocurre un error durante la ejecución
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
-        ...     execute(conn, "INSERT INTO activities (name) VALUES (?)", ("Running",))
+        >>> with DatabaseConnection() as conn:
+        ...     execute(conn, "INSERT INTO activities (name) VALUES (%s)", ("Running",))
     """
     cur = conn.cursor()
 
@@ -153,9 +264,9 @@ def execute(
 
         return cur
 
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         logger.error(
-            f"Error ejecutando SQL\n"
+            f"Error ejecutando SQL en PostgreSQL\n"
             f"Statement: {sql_statement}\n"
             f"Params: {params}\n"
             f"Error: {e}"
@@ -164,7 +275,7 @@ def execute(
 
 
 def execute_many(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     sql_statement: str,
     params_list: List[Tuple]
 ) -> int:
@@ -173,7 +284,7 @@ def execute_many(
 
     Args:
         conn: Conexión activa a la base de datos
-        sql_statement: Statement SQL con placeholders '?'
+        sql_statement: Statement SQL con placeholders '%s'
         params_list: Lista de tuplas con parámetros
 
     Returns:
@@ -184,10 +295,10 @@ def execute_many(
         ...     ("Running", 5000),
         ...     ("Cycling", 20000)
         ... ]
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> with DatabaseConnection() as conn:
         ...     count = execute_many(
         ...         conn,
-        ...         "INSERT INTO activities (name, distance) VALUES (?, ?)",
+        ...         "INSERT INTO activities (name, distance) VALUES (%s, %s)",
         ...         records
         ...     )
     """
@@ -202,7 +313,7 @@ def execute_many(
 
         return rows_affected
 
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         logger.error(f"Error en batch execution: {e}")
         raise
     finally:
@@ -210,35 +321,42 @@ def execute_many(
 
 
 def fetch(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     sql_statement: str,
-    params: Optional[Union[Tuple, List]] = None
-) -> List[sqlite3.Row]:
+    params: Optional[Union[Tuple, List]] = None,
+    as_dict: bool = False
+) -> List:
     """
     Ejecuta una consulta SQL SELECT y retorna los resultados.
 
     Args:
         conn: Conexión activa a la base de datos
-        sql_statement: Statement SQL SELECT con placeholders '?'
+        sql_statement: Statement SQL SELECT con placeholders '%s'
         params: Parámetros para el statement SQL
+        as_dict: Si True, retorna diccionarios; si False, tuplas
 
     Returns:
-        Lista de Row objects (accesibles como diccionarios)
+        Lista de resultados (tuplas o diccionarios según as_dict)
 
     Raises:
-        sqlite3.Error: Si ocurre un error durante la ejecución
+        psycopg2.Error: Si ocurre un error durante la ejecución
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> with DatabaseConnection() as conn:
+        ...     # Tuplas
+        ...     results = fetch(conn, "SELECT * FROM activities WHERE distance > %s", (5000,))
+        ...     # Diccionarios
         ...     results = fetch(
         ...         conn,
-        ...         "SELECT * FROM activities WHERE distance > ?",
-        ...         (5000,)
+        ...         "SELECT * FROM activities WHERE distance > %s",
+        ...         (5000,),
+        ...         as_dict=True
         ...     )
         ...     for row in results:
         ...         print(row['name'], row['distance'])
     """
-    cur = conn.cursor()
+    cursor_factory = RealDictCursor if as_dict else None
+    cur = conn.cursor(cursor_factory=cursor_factory)
 
     try:
         if params:
@@ -251,7 +369,7 @@ def fetch(
 
         return results
 
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         logger.error(
             f"Error ejecutando query\n"
             f"Statement: {sql_statement}\n"
@@ -264,10 +382,11 @@ def fetch(
 
 
 def fetch_one(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     sql_statement: str,
-    params: Optional[Union[Tuple, List]] = None
-) -> Optional[sqlite3.Row]:
+    params: Optional[Union[Tuple, List]] = None,
+    as_dict: bool = False
+) -> Optional[Any]:
     """
     Ejecuta una consulta SQL y retorna solo la primera fila.
 
@@ -275,21 +394,24 @@ def fetch_one(
         conn: Conexión activa a la base de datos
         sql_statement: Statement SQL SELECT
         params: Parámetros para el statement
+        as_dict: Si True, retorna diccionario; si False, tupla
 
     Returns:
         Primera fila del resultado o None si no hay resultados
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> with DatabaseConnection() as conn:
         ...     activity = fetch_one(
         ...         conn,
-        ...         "SELECT * FROM activities WHERE id_activity = ?",
-        ...         (12345,)
+        ...         "SELECT * FROM activities WHERE id_activity = %s",
+        ...         (12345,),
+        ...         as_dict=True
         ...     )
         ...     if activity:
         ...         print(activity['name'])
     """
-    cur = conn.cursor()
+    cursor_factory = RealDictCursor if as_dict else None
+    cur = conn.cursor(cursor_factory=cursor_factory)
 
     try:
         if params:
@@ -300,7 +422,7 @@ def fetch_one(
         result = cur.fetchone()
         return result
 
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         logger.error(f"Error en fetch_one: {e}")
         raise
     finally:
@@ -308,46 +430,64 @@ def fetch_one(
 
 
 def insert(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     table_name: str,
     record: Dict[str, Any],
+    returning: Optional[str] = None,
     commit: bool = True
-) -> int:
+) -> Optional[Any]:
     """
     Inserta un registro en una tabla de forma segura.
+
+    PostgreSQL soporta la cláusula RETURNING para obtener valores generados.
 
     Args:
         conn: Conexión activa a la base de datos
         table_name: Nombre de la tabla
         record: Diccionario con columna: valor
+        returning: Columna a retornar (ej: 'id' para obtener ID generado)
         commit: Si True, hace commit automáticamente
 
     Returns:
-        ID del registro insertado (lastrowid)
+        Valor de la columna RETURNING si se especificó, sino None
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
-        ...     record_id = insert(
+        >>> with DatabaseConnection() as conn:
+        ...     # Insertar y obtener ID generado
+        ...     activity_id = insert(
         ...         conn,
         ...         'activities',
-        ...         {'name': 'Running', 'distance': 5000}
+        ...         {'name': 'Running', 'distance': 5000},
+        ...         returning='id'
         ...     )
+        ...     print(f"ID generado: {activity_id}")
     """
     columns = ','.join(record.keys())
-    placeholders = ','.join(['?' for _ in record.keys()])
+    placeholders = ','.join(['%s' for _ in record.keys()])
+
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+
+    if returning:
+        statement += f" RETURNING {returning}"
+
     params = tuple(record.values())
 
     cur = execute(conn, statement, params, commit=commit)
-    row_id = cur.lastrowid
-    cur.close()
 
-    logger.debug(f"Registro insertado en {table_name}, ID: {row_id}")
-    return row_id
+    try:
+        if returning:
+            result = cur.fetchone()[0]
+            logger.debug(f"Registro insertado en {table_name}, {returning}={result}")
+            return result
+        else:
+            logger.debug(f"Registro insertado en {table_name}")
+            return None
+    finally:
+        cur.close()
 
 
 def insert_many(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     table_name: str,
     records: List[Dict[str, Any]]
 ) -> int:
@@ -367,15 +507,17 @@ def insert_many(
         ...     {'name': 'Running', 'distance': 5000},
         ...     {'name': 'Cycling', 'distance': 20000}
         ... ]
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> with DatabaseConnection() as conn:
         ...     count = insert_many(conn, 'activities', records)
+        ...     print(f"{count} registros insertados")
     """
     if not records:
         return 0
 
     # Usar las claves del primer registro para todas las inserciones
     columns = ','.join(records[0].keys())
-    placeholders = ','.join(['?' for _ in records[0].keys()])
+    placeholders = ','.join(['%s' for _ in records[0].keys()])
+
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
     # Convertir cada dict a tupla de valores
@@ -388,7 +530,7 @@ def insert_many(
 
 
 def update(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     table_name: str,
     updates: Dict[str, Any],
     where_clause: str,
@@ -401,23 +543,24 @@ def update(
         conn: Conexión activa a la base de datos
         table_name: Nombre de la tabla
         updates: Diccionario con columna: nuevo_valor
-        where_clause: Cláusula WHERE (ej: "id = ?")
+        where_clause: Cláusula WHERE (ej: "id = %s")
         where_params: Parámetros para la cláusula WHERE
 
     Returns:
         Número de filas actualizadas
 
     Example:
-        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        >>> with DatabaseConnection() as conn:
         ...     rows = update(
         ...         conn,
         ...         'activities',
         ...         {'kudos_count': 10},
-        ...         "id_activity = ?",
+        ...         "id_activity = %s",
         ...         (12345,)
         ...     )
+        ...     print(f"{rows} filas actualizadas")
     """
-    set_clause = ','.join([f"{col} = ?" for col in updates.keys()])
+    set_clause = ','.join([f"{col} = %s" for col in updates.keys()])
     statement = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause}"
 
     params = list(updates.values())
@@ -440,6 +583,9 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
     SQL injection. Los valores se retornan por separado como tupla de parámetros.
 
     NOTA: Para nuevo código, se recomienda usar la función insert() directamente.
+    Esta función se mantiene para compatibilidad con código existente.
+
+    PostgreSQL usa %s como placeholder (no ? como SQLite).
 
     Args:
         table_name: Nombre de la tabla donde insertar los datos
@@ -448,20 +594,20 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
 
     Returns:
         Una tupla de dos elementos:
-            - str: Statement SQL INSERT con placeholders '?'
+            - str: Statement SQL INSERT con placeholders '%s'
             - tuple: Tupla con los valores a insertar
 
     Example:
         >>> record = {'name': 'Running', 'distance': 5000, 'date': '2025-11-30'}
         >>> stmt, params = insert_statement('activities', record)
         >>> print(stmt)
-        INSERT INTO activities (name,distance,date) VALUES (?,?,?)
+        INSERT INTO activities (name,distance,date) VALUES (%s,%s,%s)
         >>> print(params)
         ('Running', 5000, '2025-11-30')
         >>> commit(conn, stmt, params)
     """
     columns = ','.join(record.keys())
-    placeholders = ','.join(['?' for _ in record.keys()])
+    placeholders = ','.join(['%s' for _ in record.keys()])
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
     params = tuple(record.values())
 
@@ -469,7 +615,7 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
 
 
 def commit(
-    conn: sqlite3.Connection,
+    conn: psycopg2.extensions.connection,
     sql_statement: Union[str, Tuple[str, Tuple]],
     params: Optional[Tuple] = None
 ) -> None:
@@ -487,12 +633,12 @@ def commit(
                 sql_statement ya es una tupla)
 
     Raises:
-        sqlite3.Error: Si ocurre un error durante la ejecución del statement
+        psycopg2.Error: Si ocurre un error durante la ejecución del statement
 
     Example:
-        >>> conn = sql_connection('bd/strava.sqlite')
+        >>> conn = sql_connection()
         >>> # Opción 1: statement y params separados
-        >>> commit(conn, "INSERT INTO activities (name) VALUES (?)", ("Running",))
+        >>> commit(conn, "INSERT INTO activities (name) VALUES (%s)", ("Running",))
         >>> # Opción 2: usando insert_statement
         >>> stmt, params = insert_statement('activities', {'name': 'Cycling'})
         >>> commit(conn, stmt, params)

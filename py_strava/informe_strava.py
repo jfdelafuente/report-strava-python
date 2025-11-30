@@ -12,7 +12,7 @@ import logging
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-from py_strava.strava import strava_bd_1 as stravaBBDD
+from py_strava.strava import strava_db_sqlite as stravaBBDD
 
 # Configuración de logging
 logging.basicConfig(

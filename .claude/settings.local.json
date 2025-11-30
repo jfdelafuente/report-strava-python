@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git mv:*)",
+      "Bash(move \"py_strava\\strava\\strava_bd_1.py\" \"py_strava\\strava\\strava_db_sqlite.py\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

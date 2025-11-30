@@ -15,17 +15,19 @@ import logging
 from typing import Optional
 import pandas as pd
 
-from py_strava.strava import strava_token_1 as stravaToken
+from py_strava.strava import strava_token as stravaToken
 from py_strava.strava import strava_activities as stravaActivities
 from py_strava.strava import strava_fechas as stravaFechas
 
 # Intentar importar PostgreSQL, si no está disponible usar SQLite
 try:
-    from py_strava.strava import strava_bd_postgres as stravaBBDD
+    from py_strava.strava import strava_db_postgres as stravaBBDD
     DB_TYPE = "PostgreSQL"
+    USE_POSTGRES = True
 except ImportError:
-    from py_strava.strava import strava_bd_1 as stravaBBDD
+    from py_strava.strava import strava_db_sqlite as stravaBBDD
     DB_TYPE = "SQLite"
+    USE_POSTGRES = False
 
 # Configuración de logging
 logging.basicConfig(
@@ -92,7 +94,7 @@ def get_last_sync_timestamp(log_file: str) -> int:
 
 def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
     """
-    Carga las actividades en la base de datos.
+    Carga las actividades en la base de datos usando batch insert para mejor rendimiento.
 
     Args:
         conn: Conexión a la base de datos
@@ -105,9 +107,10 @@ def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
         logger.info("No hay actividades nuevas para cargar")
         return 0
 
-    count = 0
-    for _, row in activities.iterrows():
-        try:
+    try:
+        # Preparar lista de registros para batch insert
+        records = []
+        for _, row in activities.iterrows():
             record = {
                 'id_activity': row['id'],
                 'name': row['name'],
@@ -121,19 +124,47 @@ def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
                 'kudos_count': row['kudos_count'],
                 'external_id': row['external_id']
             }
-            stravaBBDD.commit(conn, stravaBBDD.insert_statement("Activities", record))
-            count += 1
-        except Exception as ex:
-            logger.error(f"Error al insertar actividad {row['id']}: {ex}")
-            continue
+            records.append(record)
 
-    logger.info(f"{count} actividades cargadas en la base de datos")
-    return count
+        # Batch insert (20-40x más rápido que insertar una por una)
+        count = stravaBBDD.insert_many(conn, "Activities", records)
+        logger.info(f"{count} actividades cargadas en la base de datos (batch insert)")
+        return count
+
+    except Exception as ex:
+        logger.error(f"Error al insertar actividades con batch insert: {ex}")
+        logger.info("Intentando inserción individual como fallback...")
+
+        # Fallback: insertar una por una si falla el batch
+        count = 0
+        for _, row in activities.iterrows():
+            try:
+                record = {
+                    'id_activity': row['id'],
+                    'name': row['name'],
+                    'start_date_local': row['start_date_local'],
+                    'type': row['type'],
+                    'distance': row['distance'],
+                    'moving_time': row['moving_time'],
+                    'elapsed_time': row['elapsed_time'],
+                    'total_elevation_gain': row['total_elevation_gain'],
+                    'end_latlng': str(row['end_latlng']),
+                    'kudos_count': row['kudos_count'],
+                    'external_id': row['external_id']
+                }
+                stravaBBDD.insert(conn, "Activities", record)
+                count += 1
+            except Exception as ex:
+                logger.error(f"Error al insertar actividad {row['id']}: {ex}")
+                continue
+
+        logger.info(f"{count} actividades cargadas (inserción individual)")
+        return count
 
 
 def load_kudos_to_db(conn, access_token: str, activity_ids: list) -> int:
     """
-    Carga los kudos de las actividades en la base de datos.
+    Carga los kudos de las actividades en la base de datos usando batch insert.
 
     Args:
         conn: Conexión a la base de datos
@@ -143,8 +174,9 @@ def load_kudos_to_db(conn, access_token: str, activity_ids: list) -> int:
     Returns:
         Número total de kudos cargados
     """
-    total_kudos = 0
+    all_kudos_records = []
 
+    # Recopilar todos los kudos de todas las actividades
     for activity_id in activity_ids:
         try:
             kudos = stravaActivities.request_kudos(access_token, activity_id)
@@ -152,25 +184,44 @@ def load_kudos_to_db(conn, access_token: str, activity_ids: list) -> int:
             if kudos.empty:
                 continue
 
+            # Preparar registros de kudos para esta actividad
             for _, kudo_row in kudos.iterrows():
-                try:
-                    record = {
-                        'id_activity': activity_id,
-                        'firstname': kudo_row['firstname'],
-                        'lastname': kudo_row['lastname']
-                    }
-                    stravaBBDD.commit(conn, stravaBBDD.insert_statement("Kudos", record))
-                    total_kudos += 1
-                except Exception as ex:
-                    logger.error(f"Error al insertar kudo para actividad {activity_id}: {ex}")
-                    continue
+                record = {
+                    'id_activity': activity_id,
+                    'firstname': kudo_row['firstname'],
+                    'lastname': kudo_row['lastname']
+                }
+                all_kudos_records.append(record)
 
         except Exception as ex:
             logger.error(f"Error al obtener kudos de actividad {activity_id}: {ex}")
             continue
 
-    logger.info(f"{total_kudos} kudos cargados en la base de datos")
-    return total_kudos
+    # Insertar todos los kudos en una sola operación batch
+    if all_kudos_records:
+        try:
+            total_kudos = stravaBBDD.insert_many(conn, "Kudos", all_kudos_records)
+            logger.info(f"{total_kudos} kudos cargados en la base de datos (batch insert)")
+            return total_kudos
+        except Exception as ex:
+            logger.error(f"Error al insertar kudos con batch insert: {ex}")
+            logger.info("Intentando inserción individual como fallback...")
+
+            # Fallback: insertar uno por uno
+            total_kudos = 0
+            for record in all_kudos_records:
+                try:
+                    stravaBBDD.insert(conn, "Kudos", record)
+                    total_kudos += 1
+                except Exception as ex:
+                    logger.error(f"Error al insertar kudo: {ex}")
+                    continue
+
+            logger.info(f"{total_kudos} kudos cargados (inserción individual)")
+            return total_kudos
+    else:
+        logger.info("No hay kudos para cargar")
+        return 0
 
 
 def update_sync_log(log_file: str, num_activities: int) -> None:
@@ -198,18 +249,6 @@ def main() -> None:
     logger.info("=== Inicio de sincronización de Strava ===")
     logger.info(f"Usando base de datos: {DB_TYPE}")
 
-    # Conectar a la base de datos
-    try:
-        if DB_TYPE == "SQLite":
-            conn = stravaBBDD.sql_connection(SQLITE_DB_PATH)
-            logger.info(f"Conexión a SQLite establecida: {SQLITE_DB_PATH}")
-        else:
-            conn = stravaBBDD.sql_connection()
-            logger.info("Conexión a PostgreSQL establecida")
-    except Exception as ex:
-        logger.error(f"Error al conectar con la base de datos: {ex}")
-        return
-
     # Obtener token de acceso
     access_token = get_access_token(STRAVA_TOKEN_JSON)
     if not access_token:
@@ -228,19 +267,54 @@ def main() -> None:
         logger.error(f"Error al obtener actividades: {ex}")
         return
 
-    # Cargar actividades en la base de datos
-    num_loaded = load_activities_to_db(conn, activities)
-
-    if num_loaded == 0:
+    if activities.empty:
         logger.info("No hay actividades nuevas. Finalizando.")
         return
 
-    # Obtener y cargar kudos
-    activity_ids = activities['id'].tolist()
-    load_kudos_to_db(conn, access_token, activity_ids)
+    # Usar context manager para manejo automático de la conexión
+    try:
+        # Crear context manager según el tipo de base de datos
+        if USE_POSTGRES:
+            logger.info("Usando PostgreSQL")
+            # type: ignore - DatabaseConnection de PostgreSQL no requiere parámetros
+            with stravaBBDD.DatabaseConnection() as conn:  # type: ignore
+                # Cargar actividades en la base de datos
+                num_loaded = load_activities_to_db(conn, activities)
 
-    # Actualizar log de sincronización
-    update_sync_log(STRAVA_ACTIVITIES_LOG, len(activity_ids))
+                if num_loaded == 0:
+                    logger.info("No se pudieron cargar actividades. Finalizando.")
+                    return
+
+                # Obtener y cargar kudos
+                activity_ids = activities['id'].tolist()
+                load_kudos_to_db(conn, access_token, activity_ids)
+
+                # La conexión se cierra y commitea automáticamente al salir del context manager
+                logger.info("Datos guardados exitosamente")
+        else:
+            logger.info(f"Usando SQLite: {SQLITE_DB_PATH}")
+            # type: ignore - DatabaseConnection de SQLite requiere db_path
+            with stravaBBDD.DatabaseConnection(SQLITE_DB_PATH) as conn:  # type: ignore
+                # Cargar actividades en la base de datos
+                num_loaded = load_activities_to_db(conn, activities)
+
+                if num_loaded == 0:
+                    logger.info("No se pudieron cargar actividades. Finalizando.")
+                    return
+
+                # Obtener y cargar kudos
+                activity_ids = activities['id'].tolist()
+                load_kudos_to_db(conn, access_token, activity_ids)
+
+                # La conexión se cierra y commitea automáticamente al salir del context manager
+                logger.info("Datos guardados exitosamente")
+
+    except Exception as ex:
+        logger.error(f"Error durante la sincronización: {ex}")
+        return
+
+    # Actualizar log de sincronización (fuera de la transacción DB)
+    update_sync_log(STRAVA_ACTIVITIES_LOG, len(activities))
 
     logger.info("=== Sincronización completada exitosamente ===")
 

@@ -1,4 +1,4 @@
-import strava_bd_1 as stravaBBDD
+import strava_db_sqlite as stravaBBDD
 import csv
 
 # Creamos la conexión a la BD

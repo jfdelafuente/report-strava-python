@@ -1,5 +1,5 @@
-import strava_token_1 as stravaToken
-import strava_bd_1 as stravaBBDD
+import strava_token as stravaToken
+import strava_db_sqlite as stravaBBDD
 import strava_activities as stravaActivities
 import json
 
