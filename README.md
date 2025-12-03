@@ -221,13 +221,45 @@ python scripts/test_setup.py --verbose # Información detallada
 1. Ve a [Strava API Settings](https://www.strava.com/settings/api)
 2. Crea una nueva aplicación
 3. Obtén tu `client_id` y `client_secret`
-4. Autoriza la aplicación y obtén el `refresh_token`
+4. Configura **Authorization Callback Domain** como `localhost`
 
-### 2. Crear archivo de tokens
+### 2. Obtener Tokens de Autenticación
+
+#### Opción A: Script Interactivo (Recomendado)
+
+Usa el script `01_get_token.py` que te guiará paso a paso:
+
+```bash
+# Modo interactivo - te guía en todo el proceso
+python scripts/01_get_token.py
+
+# El script te pedirá:
+# 1. Client ID y Client Secret
+# 2. Abrirá el navegador para autorizar
+# 3. Te pedirá el código de autorización
+# 4. Guardará automáticamente los tokens en json/strava_tokens.json
+```
+
+**Comandos útiles del script:**
+
+```bash
+# Verificar token existente
+python scripts/01_get_token.py --verify
+
+# Renovar token expirado
+python scripts/01_get_token.py --refresh
+
+# Ver ayuda completa
+python scripts/01_get_token.py --help
+```
+
+Ver [docs/user/GET_TOKEN.md](docs/user/GET_TOKEN.md) para guía detallada.
+
+#### Opción B: Crear Manualmente
 
 **Nota**: Asegúrate de haber creado el directorio `json/` primero (ver paso 4 de Instalación).
 
-Crea el archivo `json/strava_tokens.json`:
+Si prefieres crear el archivo manualmente, crea `json/strava_tokens.json`:
 
 ```json
 {
@@ -240,6 +272,8 @@ Crea el archivo `json/strava_tokens.json`:
   "client_secret": "TU_CLIENT_SECRET"
 }
 ```
+
+⚠️ **Nota**: Necesitarás seguir el [flujo OAuth2 de Strava](https://developers.strava.com/docs/authentication/) manualmente para obtener el `refresh_token` inicial.
 
 ### 3. Configurar base de datos
 
