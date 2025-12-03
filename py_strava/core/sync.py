@@ -11,6 +11,7 @@ import logging
 from typing import Optional, Dict, Any
 import pandas as pd
 
+from py_strava import config
 from py_strava.api import auth as stravaAuth
 from py_strava.api import activities as stravaActivities
 from py_strava.utils import dates as stravaFechas
@@ -28,10 +29,10 @@ except ImportError:
 # Configuración de logging
 logger = logging.getLogger(__name__)
 
-# Constantes por defecto
-DEFAULT_ACTIVITIES_LOG = './data/strava_activities.log'
-DEFAULT_TOKEN_JSON = './json/strava_tokens.json'
-DEFAULT_SQLITE_DB_PATH = './bd/strava.sqlite'
+# Constantes por defecto (usando config centralizado)
+DEFAULT_ACTIVITIES_LOG = str(config.STRAVA_ACTIVITIES_LOG)
+DEFAULT_TOKEN_JSON = str(config.STRAVA_TOKEN_JSON)
+DEFAULT_SQLITE_DB_PATH = str(config.SQLITE_DB_PATH)
 
 # Campos de actividades a extraer
 ACTIVITY_FIELDS = [

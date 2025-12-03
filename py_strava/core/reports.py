@@ -11,14 +11,15 @@ import logging
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict, Any
 
+from py_strava import config
 from py_strava.database import sqlite as stravaBBDD
 
 # Configuración de logging
 logger = logging.getLogger(__name__)
 
-# Constantes por defecto
-DEFAULT_DB_PATH = 'bd/strava.sqlite'
-DEFAULT_OUTPUT_CSV = 'data/strava_data2.csv'
+# Constantes por defecto (usando config centralizado)
+DEFAULT_DB_PATH = str(config.SQLITE_DB_PATH)
+DEFAULT_OUTPUT_CSV = str(config.STRAVA_REPORT_CSV)
 
 # Definición de consultas SQL
 QUERY_KUDOS_ACTIVITIES = """

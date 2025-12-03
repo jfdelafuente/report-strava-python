@@ -19,6 +19,9 @@ Este script realiza las siguientes operaciones:
 import logging
 import warnings
 
+# Importar configuración centralizada
+from py_strava import config
+
 # Configurar logging
 logging.basicConfig(
     level=logging.INFO,
@@ -38,10 +41,10 @@ warnings.warn(
 # Importar la lógica desde el nuevo módulo core
 from py_strava.core.sync import run_sync
 
-# Constantes para compatibilidad
-STRAVA_ACTIVITIES_LOG = './data/strava_activities.log'
-STRAVA_TOKEN_JSON = './json/strava_tokens.json'
-SQLITE_DB_PATH = './bd/strava.sqlite'
+# Usar constantes de config.py (convertir a string para compatibilidad)
+STRAVA_ACTIVITIES_LOG = str(config.STRAVA_ACTIVITIES_LOG)
+STRAVA_TOKEN_JSON = str(config.STRAVA_TOKEN_JSON)
+SQLITE_DB_PATH = str(config.SQLITE_DB_PATH)
 
 
 def main() -> None:

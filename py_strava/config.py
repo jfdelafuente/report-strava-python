@@ -6,13 +6,16 @@ import os
 from pathlib import Path
 
 # Rutas base
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).parent.parent  # Subir al directorio raíz del proyecto
 DATA_DIR = BASE_DIR / 'data'
 JSON_DIR = BASE_DIR / 'json'
+BD_DIR = BASE_DIR / 'bd'
 
 # Archivos de configuración
 STRAVA_ACTIVITIES_LOG = DATA_DIR / 'strava_activities.log'
 STRAVA_TOKEN_JSON = JSON_DIR / 'strava_tokens.json'
+SQLITE_DB_PATH = BD_DIR / 'strava.sqlite'
+STRAVA_REPORT_CSV = DATA_DIR / 'strava_data2.csv'
 
 # Configuración de logging
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')

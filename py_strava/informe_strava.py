@@ -17,6 +17,9 @@ Este script:
 import logging
 import warnings
 
+# Importar configuración centralizada
+from py_strava import config
+
 # Configuración de logging
 logging.basicConfig(
     level=logging.INFO,
@@ -36,9 +39,9 @@ warnings.warn(
 # Importar la lógica desde el nuevo módulo core
 from py_strava.core.reports import run_report
 
-# Constantes para compatibilidad
-STRAVA_BD = 'bd/strava.sqlite'
-STRAVA_DATA_CSV = 'data/strava_data2.csv'
+# Usar constantes de config.py (convertir a string para compatibilidad)
+STRAVA_BD = str(config.SQLITE_DB_PATH)
+STRAVA_DATA_CSV = str(config.STRAVA_REPORT_CSV)
 
 
 
