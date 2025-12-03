@@ -7,9 +7,9 @@ Este script crea las tablas necesarias para almacenar:
 - Kudos: Kudos recibidos en cada actividad
 
 Uso:
-    python init_database.py              # Crear tablas si no existen
-    python init_database.py --reset      # Eliminar y recrear todas las tablas (¡CUIDADO!)
-    python init_database.py --verify     # Verificar que las tablas existen
+    python scripts/init_database.py              # Crear tablas si no existen
+    python scripts/init_database.py --reset      # Eliminar y recrear todas las tablas (¡CUIDADO!)
+    python scripts/init_database.py --verify     # Verificar que las tablas existen
 """
 
 import sys
@@ -24,8 +24,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Asegurar que el directorio py_strava esté en el path
-sys.path.insert(0, str(Path(__file__).parent))
+# Añadir el directorio raíz del proyecto al path de Python
+# Esto permite importar py_strava desde cualquier ubicación
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from py_strava.strava import strava_db_sqlite as db
 from py_strava import db_schema
@@ -38,8 +40,8 @@ def get_db_path() -> Path:
     Returns:
         Path: Ruta al archivo strava.sqlite
     """
-    base_dir = Path(__file__).parent
-    db_dir = base_dir / 'bd'
+    # Usar la raíz del proyecto
+    db_dir = project_root / 'bd'
 
     # Crear directorio si no existe
     db_dir.mkdir(exist_ok=True)

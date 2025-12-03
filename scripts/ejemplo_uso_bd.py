@@ -11,8 +11,10 @@ Este script muestra cómo:
 import sys
 from pathlib import Path
 
-# Añadir el directorio py_strava al path
-sys.path.insert(0, str(Path(__file__).parent))
+# Añadir el directorio raíz del proyecto al path de Python
+# Esto permite importar py_strava desde cualquier ubicación
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from py_strava.strava import strava_db_sqlite as db
 
@@ -23,7 +25,7 @@ def ejemplo_insertar_actividad():
     print("EJEMPLO 1: Insertar una actividad")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     # Datos de ejemplo de una actividad
     actividad = {
@@ -43,7 +45,7 @@ def ejemplo_insertar_actividad():
     with db.DatabaseConnection(str(db_path)) as conn:
         # Insertar la actividad
         activity_id = db.insert(conn, 'Activities', actividad)
-        print(f"✓ Actividad insertada con ID: {activity_id}")
+        print(f"[OK] Actividad insertada con ID: {activity_id}")
         print(f"  Nombre: {actividad['name']}")
         print(f"  Distancia: {actividad['distance']/1000:.2f} km")
         print(f"  Tiempo: {actividad['moving_time']//60} min {actividad['moving_time']%60} seg")
@@ -55,7 +57,7 @@ def ejemplo_insertar_kudos():
     print("EJEMPLO 2: Insertar kudos")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     # Lista de kudos de ejemplo
     kudos_list = [
@@ -82,7 +84,7 @@ def ejemplo_insertar_kudos():
     with db.DatabaseConnection(str(db_path)) as conn:
         # Insertar múltiples kudos
         count = db.insert_many(conn, 'Kudos', kudos_list)
-        print(f"✓ {count} kudos insertados")
+        print(f"[OK] {count} kudos insertados")
 
         for kudo in kudos_list:
             print(f"  - {kudo['firstname']} {kudo['lastname']}")
@@ -94,7 +96,7 @@ def ejemplo_consultar_actividades():
     print("EJEMPLO 3: Consultar actividades")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Consultar todas las actividades
@@ -119,7 +121,7 @@ def ejemplo_consultar_con_join():
     print("EJEMPLO 4: Consultar actividades con kudos (JOIN)")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     with db.DatabaseConnection(str(db_path)) as conn:
         query = """
@@ -157,7 +159,7 @@ def ejemplo_actualizar_kudos():
     print("EJEMPLO 5: Actualizar contador de kudos")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Contar kudos reales
@@ -179,7 +181,7 @@ def ejemplo_actualizar_kudos():
             (12345678901,)
         )
 
-        print(f"✓ {rows} actividad actualizada")
+        print(f"[OK] {rows} actividad actualizada")
 
 
 def ejemplo_estadisticas():
@@ -188,7 +190,7 @@ def ejemplo_estadisticas():
     print("EJEMPLO 6: Estadísticas generales")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Estadísticas de actividades
@@ -229,16 +231,16 @@ def limpiar_datos_ejemplo():
     print("LIMPIEZA: Eliminando datos de ejemplo")
     print("=" * 60)
 
-    db_path = Path(__file__).parent / 'bd' / 'strava.sqlite'
+    db_path = project_root / 'bd' / 'strava.sqlite'
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Eliminar kudos primero (foreign key)
         db.execute(conn, "DELETE FROM Kudos WHERE id_activity = ?", (12345678901,))
-        print("✓ Kudos de ejemplo eliminados")
+        print("[OK] Kudos de ejemplo eliminados")
 
         # Eliminar actividad
         db.execute(conn, "DELETE FROM Activities WHERE id_activity = ?", (12345678901,))
-        print("✓ Actividad de ejemplo eliminada")
+        print("[OK] Actividad de ejemplo eliminada")
 
 
 def main():
@@ -266,11 +268,11 @@ def main():
             print("Puedes ejecutar init_database.py --reset para limpiar toda la BD")
 
         print("\n" + "=" * 80)
-        print("✓ EJEMPLOS COMPLETADOS")
+        print("[SUCCESS] EJEMPLOS COMPLETADOS")
         print("=" * 80)
 
     except Exception as e:
-        print(f"\n✗ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
         import traceback
         traceback.print_exc()
         return 1

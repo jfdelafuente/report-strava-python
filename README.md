@@ -28,24 +28,38 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 
 ```
 py-strava/
-├── py_strava/
+├── py_strava/                  # Código fuente principal
 │   ├── main.py                 # Script principal de sincronización
 │   ├── informe_strava.py       # Generación de informes CSV
 │   ├── config.py               # Configuración centralizada
 │   ├── db_schema.py            # Esquemas SQL y funciones de BD
-│   ├── strava/
-│   │   ├── strava_activities.py    # Gestión de actividades
-│   │   ├── strava_bd_postgres.py   # Conexión PostgreSQL
-│   │   ├── strava_bd_1.py          # Conexión SQLite
-│   │   ├── strava_token_1.py       # Gestión de tokens
-│   │   └── strava_fechas.py        # Utilidades de fechas
-│   ├── data/                   # Logs y datos exportados
-│   ├── json/                   # Tokens de Strava
-│   └── bd/                     # Base de datos SQLite (opcional)
-├── README.md
-├── MEJORAS.md                  # Documentación de mejoras
-└── requirements.txt
+│   └── strava/                 # Módulos de Strava
+│       ├── strava_activities.py    # Gestión de actividades
+│       ├── strava_db_postgres.py   # Conexión PostgreSQL
+│       ├── strava_db_sqlite.py     # Conexión SQLite
+│       ├── strava_token.py         # Gestión de tokens
+│       └── strava_fechas.py        # Utilidades de fechas
+│
+├── scripts/                    # Scripts de utilidad
+│   ├── init_database.py        # Inicializar base de datos
+│   ├── ejemplo_uso_bd.py       # Ejemplos de uso
+│   └── test_setup.py           # Verificar instalación
+│
+├── docs/                       # Documentación organizada
+│   ├── user/                   # Guías para usuarios
+│   ├── dev/                    # Documentación técnica
+│   └── database/               # Docs de base de datos
+│
+├── data/                       # Datos generados (logs, CSV)
+├── bd/                         # Base de datos SQLite
+├── json/                       # Configuración (tokens)
+│
+├── README.md                   # Este archivo
+├── requirements.txt            # Dependencias Python
+└── .env.example                # Template de configuración
 ```
+
+> **Nota**: El proyecto ha sido reorganizado recientemente. Ver [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles completos de los cambios.
 
 ## Requisitos
 
@@ -81,7 +95,32 @@ python3.8 -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 5. Instalación opcional para PostgreSQL
+### 5. Verificar instalación
+
+**IMPORTANTE**: Después de instalar, verifica que todo esté correctamente configurado:
+
+```bash
+python scripts/test_setup.py
+```
+
+Este script verifica:
+
+- ✓ Estructura de directorios
+- ✓ Archivos necesarios
+- ✓ Dependencias instaladas
+- ✓ Imports funcionando
+- ✓ Configuración básica
+
+**Opciones del script de verificación**:
+
+```bash
+python scripts/test_setup.py           # Verificación completa
+python scripts/test_setup.py --quick   # Verificación rápida
+python scripts/test_setup.py --verbose # Información detallada
+python scripts/test_setup.py --help    # Ver ayuda
+```
+
+### 6. Instalación opcional para PostgreSQL
 
 Si vas a usar PostgreSQL, instala las dependencias adicionales:
 
@@ -166,23 +205,33 @@ pip install psycopg2-binary
 
 Si tienes problemas en Windows, el proyecto funcionará perfectamente con SQLite (opción por defecto).
 
-### 4. Crear directorios necesarios
+### 4. Inicializar la base de datos
+
+**Para SQLite** (recomendado para empezar):
 
 ```bash
-mkdir -p data json bd
+python scripts/init_database.py
 ```
 
-### 5. Inicializar la base de datos (opcional)
+Este script:
 
-Si necesitas crear las tablas desde cero:
+- Crea automáticamente el archivo `bd/strava.sqlite`
+- Crea las tablas `Activities` y `Kudos`
+- Verifica que todo esté correctamente configurado
 
-```python
-from py_strava.db_schema import initialize_database
-from py_strava.strava import strava_bd_postgres as stravaBBDD
+**Opciones disponibles**:
 
-conn = stravaBBDD.sql_connection()
-initialize_database(conn)
+```bash
+python scripts/init_database.py              # Crear tablas si no existen
+python scripts/init_database.py --verify     # Verificar tablas existentes
+python scripts/init_database.py --reset      # Recrear todas las tablas (¡cuidado!)
 ```
+
+Ver [docs/database/INIT_DATABASE.md](docs/database/INIT_DATABASE.md) para más detalles.
+
+**Para PostgreSQL**:
+
+Si configuraste PostgreSQL, el script detectará automáticamente las credenciales y usará PostgreSQL en lugar de SQLite.
 
 ## Uso
 
@@ -302,7 +351,20 @@ DB_PASSWORD=tu_password
 
 ## Mejoras Recientes
 
-Este proyecto ha sido completamente refactorizado. Consulta [MEJORAS.md](MEJORAS.md) para conocer en detalle:
+### v2.1.0 - Reorganización del Proyecto (Diciembre 2025)
+
+El proyecto ha sido reorganizado para mejor mantenibilidad y experiencia del desarrollador:
+
+- 📁 **Estructura organizada**: Documentación en `/docs`, scripts en `/scripts`
+- 🧪 **Tests mejorados**: Script de verificación con múltiples modos
+- 📚 **Documentación clara**: Separada por audiencia (usuario/desarrollador/BD)
+- 🔧 **Scripts de utilidad**: Herramientas para setup e inicialización
+
+Ver [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles completos.
+
+### v2.0.0 - Refactorización Completa (Noviembre 2025)
+
+Este proyecto ha sido completamente refactorizado. Consulta [docs/dev/](docs/dev/) para conocer en detalle:
 
 - ✅ Sistema de logging profesional
 - ✅ Manejo robusto de errores
@@ -328,10 +390,17 @@ Este proyecto ha sido completamente refactorizado. Consulta [MEJORAS.md](MEJORAS
 **Primero, ejecuta el script de verificación:**
 
 ```bash
-python test_setup.py
+python scripts/test_setup.py
 ```
 
 Este script comprobará que todos los módulos, dependencias y archivos estén correctamente configurados.
+
+**Opciones**:
+
+```bash
+python scripts/test_setup.py --quick    # Verificación rápida
+python scripts/test_setup.py --verbose  # Información detallada
+```
 
 ---
 
@@ -385,19 +454,22 @@ Este script comprobará que todos los módulos, dependencias y archivos estén c
 
 Si necesitas reiniciar la base de datos:
 
-```python
-from py_strava.db_schema import reset_database
-from py_strava.strava import strava_bd_postgres as stravaBBDD
-
-conn = stravaBBDD.sql_connection()
-reset_database(conn)  # ⚠️ PRECAUCIÓN: Elimina todos los datos
+```bash
+python scripts/init_database.py --reset
 ```
+
+⚠️ **PRECAUCIÓN**: Este comando elimina TODOS los datos existentes. El script pedirá confirmación antes de ejecutar.
 
 ---
 
 ### Más ayuda
 
-Consulta [SOLUCION_ERRORES.md](SOLUCION_ERRORES.md) para una guía completa de todos los problemas comunes y sus soluciones.
+Consulta la documentación completa:
+
+- [docs/user/SOLUCION_ERRORES.md](docs/user/SOLUCION_ERRORES.md) - Guía de solución de problemas
+- [docs/user/INICIO_RAPIDO.md](docs/user/INICIO_RAPIDO.md) - Guía de inicio rápido
+- [docs/database/INIT_DATABASE.md](docs/database/INIT_DATABASE.md) - Documentación de la base de datos
+- [docs/dev/](docs/dev/) - Documentación técnica para desarrolladores
 
 ## Desarrollo
 
@@ -410,21 +482,48 @@ python -m py_strava.main
 
 ### Estructura del código
 
-- `main.py`: Script principal con 6 funciones modulares
-- `informe_strava.py`: Generador de informes con 5 funciones
-- `config.py`: Configuración centralizada
-- `db_schema.py`: Definiciones SQL y helpers de BD
+Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles de la arquitectura.
+
+**Código principal**:
+
+- `py_strava/main.py`: Script principal de sincronización
+- `py_strava/informe_strava.py`: Generador de informes
+- `py_strava/config.py`: Configuración centralizada
+- `py_strava/db_schema.py`: Esquemas de base de datos
+
+**Scripts de utilidad**:
+
+- `scripts/init_database.py`: Inicialización de BD
+- `scripts/test_setup.py`: Verificación de instalación
+- `scripts/ejemplo_uso_bd.py`: Ejemplos de uso
+
+**Documentación**:
+
+- `docs/user/`: Guías para usuarios
+- `docs/dev/`: Documentación técnica
+- `docs/database/`: Documentación de BD
 
 ### Próximas mejoras planificadas
+
+Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para el plan completo.
+
+**Fase 2 - Refactoring de módulos**:
+
+- [ ] Reorganizar código en `api/`, `database/`, `core/`, `utils/`
+- [ ] Crear wrappers de compatibilidad
+
+**Fase 3 - CLI profesional**:
+
+- [ ] Implementar CLI con Click: `strava sync`, `strava report`
+- [ ] Instalación con pip: `pip install -e .`
+
+**Fase 4 - Mejoras adicionales**:
 
 - [ ] Tests unitarios con pytest
 - [ ] CI/CD con GitLab CI
 - [ ] Validación de tipos con mypy
 - [ ] Linting automático (black, flake8)
-- [ ] Documentación con Sphinx
-- [ ] Dashboard web interactivo
-- [ ] Soporte para múltiples usuarios
-- [ ] API REST para consultas
+- [ ] Dashboard web interactivo (futuro)
 
 ## Contribuir
 
@@ -464,23 +563,43 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 🚀 **Activo** - El proyecto está en desarrollo activo y se aceptan contribuciones.
 
-**Última actualización**: 26 de noviembre de 2025
-**Versión**: 2.0.0 (Refactorizado)
+**Última actualización**: 3 de diciembre de 2025
+**Versión**: 2.1.0 (Reorganizado - Fase 1 completada)
+
+### Roadmap
+
+- ✅ **Fase 1 (Completada)**: Reorganización de estructura y documentación
+- ⏳ **Fase 2 (Planificada)**: Refactoring de módulos
+- ⏳ **Fase 3 (Planificada)**: CLI profesional con Click
+- 🔵 **Fase 4 (Opcional)**: Limpieza y release PyPI
+
+Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para detalles completos.
 
 ---
 
 ## Enlaces Útiles
 
+### Documentación del Proyecto
+
+- [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) - Propuesta de reorganización del proyecto
+- [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) - Plan de migración por fases
+- [COMPARACION_ESTRUCTURA.md](COMPARACION_ESTRUCTURA.md) - Comparativa antes/después
+- [RESUMEN_EJECUTIVO_REESTRUCTURACION.md](RESUMEN_EJECUTIVO_REESTRUCTURACION.md) - Resumen ejecutivo
+- [docs/user/](docs/user/) - Guías para usuarios
+- [docs/dev/](docs/dev/) - Documentación técnica
+- [docs/database/](docs/database/) - Documentación de base de datos
+
+### Recursos Externos
+
 - [Documentación de Strava API](https://developers.strava.com/docs/reference/)
-- [MEJORAS.md](MEJORAS.md) - Detalles de la refactorización
-- [SOLUCION_ERRORES.md](SOLUCION_ERRORES.md) - Guía de solución de problemas
 - [Strava API Settings](https://www.strava.com/settings/api)
-- [Issues](https://gitlab.com/josefcodelafuente/py-strava/-/issues)
+- [Issues en GitLab](https://gitlab.com/josefcodelafuente/py-strava/-/issues)
 
 ---
 
 **¿Preguntas o problemas?**
 
-1. Ejecuta `python test_setup.py` para verificar tu instalación
-2. Consulta [SOLUCION_ERRORES.md](SOLUCION_ERRORES.md) para errores comunes
-3. Abre un [issue](https://gitlab.com/josefcodelafuente/py-strava/-/issues) en GitLab
+1. Ejecuta `python scripts/test_setup.py` para verificar tu instalación
+2. Consulta [docs/user/SOLUCION_ERRORES.md](docs/user/SOLUCION_ERRORES.md) para errores comunes
+3. Revisa [docs/user/INICIO_RAPIDO.md](docs/user/INICIO_RAPIDO.md) para guía rápida
+4. Abre un [issue](https://gitlab.com/josefcodelafuente/py-strava/-/issues) en GitLab
