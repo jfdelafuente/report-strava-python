@@ -16,7 +16,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from py_strava.strava import strava_db_sqlite as db
+# Usar nuevos imports reorganizados
+from py_strava.database import sqlite as db
 
 
 def ejemplo_insertar_actividad():

@@ -1,18 +1,21 @@
 """
 Script para generar informes de actividades y kudos de Strava desde la base de datos.
 
+ADVERTENCIA: Este módulo es un wrapper de retrocompatibilidad.
+La lógica de generación de informes se ha movido a py_strava.core.reports
+
+Para nuevos desarrollos, use:
+    from py_strava.core.reports import run_report
+    run_report()
+
 Este script:
 1. Se conecta a la base de datos de Strava
 2. Extrae información de actividades y kudos
 3. Genera un archivo CSV con los datos
 """
 
-import csv
 import logging
-from pathlib import Path
-from typing import List, Tuple, Optional
-
-from py_strava.strava import strava_db_sqlite as stravaBBDD
+import warnings
 
 # Configuración de logging
 logging.basicConfig(
@@ -21,150 +24,44 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constantes
+# Emitir warning de deprecación
+warnings.warn(
+    "py_strava.informe_strava está deprecado como módulo de lógica de negocio. "
+    "Para nuevos desarrollos, use py_strava.core.reports.run_report(). "
+    "Este wrapper se mantendrá para compatibilidad pero podría ser eliminado en versiones futuras.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+# Importar la lógica desde el nuevo módulo core
+from py_strava.core.reports import run_report
+
+# Constantes para compatibilidad
 STRAVA_BD = 'bd/strava.sqlite'
 STRAVA_DATA_CSV = 'data/strava_data2.csv'
 
-# Definición de consultas SQL
-QUERY_KUDOS_ACTIVITIES = """
-    SELECT
-        firstname,
-        lastname,
-        type,
-        kudos.id_activity,
-        start_date_local
-    FROM Kudos
-    INNER JOIN Activities ON kudos.id_activity = Activities.id_activity
-    ORDER BY start_date_local DESC, lastname, firstname
-"""
-
-# Campos del CSV de salida
-CSV_FIELDNAMES = ['FIRST_NAME', 'LAST_NAME', 'TIPO', 'ACTIVIDAD', 'START_DATE']
-
-
-def connect_to_database(db_path: str) -> Optional[object]:
-    """
-    Establece conexión con la base de datos SQLite.
-
-    Args:
-        db_path: Ruta al archivo de base de datos SQLite
-
-    Returns:
-        Conexión a la base de datos o None si falla
-    """
-    try:
-        conn = stravaBBDD.sql_connection(db_path)
-        logger.info(f"Conexión establecida con la base de datos: {db_path}")
-        return conn
-    except Exception as ex:
-        logger.error(f"Error al conectar con la base de datos: {ex}")
-        return None
-
-
-def fetch_kudos_data(conn) -> List[Tuple]:
-    """
-    Obtiene los datos de kudos y actividades desde la base de datos.
-
-    Args:
-        conn: Conexión a la base de datos
-
-    Returns:
-        Lista de tuplas con los datos de kudos y actividades
-    """
-    try:
-        records = stravaBBDD.fetch(conn, QUERY_KUDOS_ACTIVITIES)
-        logger.info(f"{len(records)} registros obtenidos de la base de datos")
-        return records
-    except Exception as ex:
-        logger.error(f"Error al obtener datos de la base de datos: {ex}")
-        return []
-
-
-def export_to_csv(data: List[Tuple], output_file: str, fieldnames: List[str]) -> bool:
-    """
-    Exporta los datos a un archivo CSV.
-
-    Args:
-        data: Lista de tuplas con los datos a exportar
-        output_file: Ruta del archivo CSV de salida
-        fieldnames: Nombres de las columnas del CSV
-
-    Returns:
-        True si la exportación fue exitosa, False en caso contrario
-    """
-    if not data:
-        logger.warning("No hay datos para exportar")
-        return False
-
-    try:
-        # Crear directorio si no existe
-        output_path = Path(output_file)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
-            csv_writer = csv.writer(
-                file,
-                delimiter=',',
-                quotechar='"',
-                quoting=csv.QUOTE_MINIMAL
-            )
-            csv_writer.writerow(fieldnames)
-            csv_writer.writerows(data)
-
-        logger.info(f"Datos exportados correctamente a {output_file}")
-        logger.info(f"Total de registros exportados: {len(data)}")
-        return True
-
-    except Exception as ex:
-        logger.error(f"Error al exportar datos a CSV: {ex}")
-        return False
-
-
-def generate_kudos_report(db_path: str, output_csv: str) -> bool:
-    """
-    Genera un informe completo de kudos en formato CSV.
-
-    Args:
-        db_path: Ruta a la base de datos SQLite
-        output_csv: Ruta del archivo CSV de salida
-
-    Returns:
-        True si el informe se generó correctamente, False en caso contrario
-    """
-    logger.info("=== Inicio de generación de informe de kudos ===")
-
-    # Conectar a la base de datos
-    conn = connect_to_database(db_path)
-    if not conn:
-        return False
-
-    try:
-        # Obtener datos
-        data = fetch_kudos_data(conn)
-
-        # Exportar a CSV
-        success = export_to_csv(data, output_csv, CSV_FIELDNAMES)
-
-        return success
-
-    finally:
-        # Cerrar conexión
-        if conn:
-            conn.close()
-            logger.info("Conexión a la base de datos cerrada")
-            logger.info("=== Generación de informe completada ===")
 
 
 def main() -> None:
     """
     Función principal que ejecuta la generación del informe.
-    """
-    success = generate_kudos_report(STRAVA_BD, STRAVA_DATA_CSV)
 
-    if success:
-        logger.info(f"Informe generado exitosamente en: {STRAVA_DATA_CSV}")
-    else:
-        logger.error("Error al generar el informe")
+    Esta función mantiene compatibilidad con el código existente,
+    pero delega toda la lógica a py_strava.core.reports.run_report()
+    """
+    try:
+        result = run_report(
+            db_path=STRAVA_BD,
+            output_csv=STRAVA_DATA_CSV
+        )
+
+        if result['success']:
+            logger.info(f"Informe generado exitosamente en: {result['output_file']}")
+        else:
+            logger.error("Error al generar el informe")
+    except Exception as ex:
+        logger.error(f"Error en la generación del informe: {ex}")
+        raise
 
 
 if __name__ == "__main__":
