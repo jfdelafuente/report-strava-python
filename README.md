@@ -711,7 +711,7 @@ Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para det
 
 #### Ejemplos
 
-- `examples/ejemplo_uso_bd.py`: Ejemplos de uso de la BD
+- `examples/advanced/ejemplo_uso_bd.py`: Ejemplos avanzados de uso de la BD
 
 #### Documentación
 

@@ -13,7 +13,8 @@ from pathlib import Path
 
 # Añadir el directorio raíz del proyecto al path de Python
 # Esto permite importar py_strava desde cualquier ubicación
-project_root = Path(__file__).parent.parent
+# Nota: Estamos en examples/advanced/, así que subimos dos niveles para llegar a la raíz
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Usar nuevos imports reorganizados
