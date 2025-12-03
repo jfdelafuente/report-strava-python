@@ -30,18 +30,21 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 ## Inicio Rápido
 
 ```bash
-# 1. Instalar el proyecto
+# 1. Crear directorios necesarios
+mkdir -p bd data json
+
+# 2. Instalar el proyecto
 pip install -e .
 
-# 2. Configurar credenciales en json/strava_tokens.json (ver sección Configuración)
+# 3. Configurar credenciales en json/strava_tokens.json (ver sección Configuración)
 
-# 3. Inicializar base de datos
+# 4. Inicializar base de datos
 strava init-db
 
-# 4. Sincronizar actividades
+# 5. Sincronizar actividades
 strava sync
 
-# 5. Generar reporte
+# 6. Generar reporte
 strava report
 ```
 
@@ -134,7 +137,27 @@ source venv/bin/activate  # En Windows: venv\Scripts\activate
 python3.8 -m pip install --upgrade pip
 ```
 
-### 4. Instalar el proyecto
+### 4. Crear directorios necesarios
+
+El proyecto requiere los siguientes directorios para funcionar correctamente:
+
+```bash
+# Crear directorios necesarios
+mkdir -p bd data json
+
+# En Windows:
+# mkdir bd
+# mkdir data
+# mkdir json
+```
+
+**Descripción de directorios**:
+
+- **`bd/`** - Base de datos SQLite (`strava.sqlite`) y credenciales de PostgreSQL (opcional)
+- **`data/`** - Archivos generados: logs, reportes CSV
+- **`json/`** - Archivo de configuración de tokens de Strava (`strava_tokens.json`)
+
+### 5. Instalar el proyecto
 
 **Modo desarrollo (recomendado)**:
 
@@ -165,7 +188,7 @@ pip install -e ".[dev,postgres]"
 
 Después de la instalación, el comando `strava` estará disponible globalmente en tu PATH.
 
-### 5. Verificar instalación
+### 6. Verificar instalación
 
 **Verificar que el comando `strava` está disponible**:
 
@@ -202,6 +225,8 @@ python scripts/test_setup.py --verbose # Información detallada
 
 ### 2. Crear archivo de tokens
 
+**Nota**: Asegúrate de haber creado el directorio `json/` primero (ver paso 4 de Instalación).
+
 Crea el archivo `json/strava_tokens.json`:
 
 ```json
@@ -227,6 +252,8 @@ Crea el archivo `json/strava_tokens.json`:
 #### Opción B: PostgreSQL (opcional)
 
 ##### Método 1: Archivo de credenciales (recomendado)
+
+**Nota**: Asegúrate de haber creado el directorio `bd/` primero (ver paso 4 de Instalación).
 
 Crea el archivo `bd/postgres_credentials.json`:
 
