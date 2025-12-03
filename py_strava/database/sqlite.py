@@ -468,6 +468,38 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
     return statement, params
 
 
+def create_table(
+    conn: sqlite3.Connection,
+    table_name: str,
+    create_sql: str
+) -> None:
+    """
+    Crea una tabla en la base de datos si no existe.
+
+    Args:
+        conn: Conexión activa a la base de datos
+        table_name: Nombre de la tabla a crear
+        create_sql: Statement SQL CREATE TABLE completo
+
+    Raises:
+        sqlite3.Error: Si ocurre un error durante la creación
+
+    Example:
+        >>> sql = '''CREATE TABLE IF NOT EXISTS activities (
+        ...     id_activity INTEGER PRIMARY KEY,
+        ...     name TEXT NOT NULL
+        ... )'''
+        >>> with DatabaseConnection('bd/strava.sqlite') as conn:
+        ...     create_table(conn, 'activities', sql)
+    """
+    try:
+        execute(conn, create_sql, commit=False)
+        logger.info(f"Tabla '{table_name}' creada/verificada exitosamente")
+    except sqlite3.Error as e:
+        logger.error(f"Error al crear tabla '{table_name}': {e}")
+        raise
+
+
 def commit(
     conn: sqlite3.Connection,
     sql_statement: Union[str, Tuple[str, Tuple]],

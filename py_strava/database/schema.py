@@ -32,6 +32,10 @@ CREATE_TABLE_KUDOS = """
 DROP_TABLE_ACTIVITIES = "DROP TABLE IF EXISTS Activities"
 DROP_TABLE_KUDOS = "DROP TABLE IF EXISTS Kudos"
 
+# Alias para compatibilidad con comandos CLI
+SQL_CREATE_ACTIVITIES = CREATE_TABLE_ACTIVITIES
+SQL_CREATE_KUDOS = CREATE_TABLE_KUDOS
+
 
 def initialize_database(conn):
     """
