@@ -282,7 +282,7 @@ def main():
         print("\n  3. Inicializar base de datos (si no esta hecha):")
         print("     python scripts/init_database.py")
         print("\n  4. Ver ejemplos de uso:")
-        print("     python scripts/ejemplo_uso_bd.py")
+        print("     python examples/ejemplo_uso_bd.py")
     else:
         print("[ERROR] ALGUNAS VERIFICACIONES FALLARON")
         print("\nAcciones recomendadas:")

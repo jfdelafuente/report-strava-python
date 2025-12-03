@@ -703,13 +703,17 @@ Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para det
 - `py_strava/config.py`: Configuración centralizada
 - `py_strava/db_schema.py`: Esquemas de base de datos
 
-**Scripts de utilidad**:
+#### Scripts de utilidad
 
 - `scripts/init_database.py`: Inicialización de BD
 - `scripts/test_setup.py`: Verificación de instalación
-- `scripts/ejemplo_uso_bd.py`: Ejemplos de uso
+- `scripts/01_get_token.py`: Obtención de tokens OAuth2
 
-**Documentación**:
+#### Ejemplos
+
+- `examples/ejemplo_uso_bd.py`: Ejemplos de uso de la BD
+
+#### Documentación
 
 - `docs/user/`: Guías para usuarios
 - `docs/dev/`: Documentación técnica
