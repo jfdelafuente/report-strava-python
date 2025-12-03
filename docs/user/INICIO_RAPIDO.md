@@ -24,7 +24,19 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\venv\Scripts\Activate.ps1
 ```
 
-### 3. Instalar dependencias básicas
+### 3. Crear directorios necesarios
+
+```powershell
+# Crear directorios si no existen
+mkdir -p bd, data, json
+
+# En PowerShell alternativo:
+New-Item -ItemType Directory -Force -Path bd
+New-Item -ItemType Directory -Force -Path data
+New-Item -ItemType Directory -Force -Path json
+```
+
+### 4. Instalar dependencias básicas
 
 ```powershell
 pip install pandas numpy requests python-dateutil
@@ -32,7 +44,7 @@ pip install pandas numpy requests python-dateutil
 
 **Nota:** Esto puede tomar 2-3 minutos. Pandas es el paquete más grande.
 
-### 4. Verificar instalación
+### 5. Verificar instalación
 
 ```powershell
 python test_setup.py
@@ -51,7 +63,7 @@ Puedes ejecutar:
 
 ## 🎯 Configurar Strava
 
-### 5. Crear archivo de tokens
+### 6. Crear archivo de tokens
 
 Crea el archivo `json/strava_tokens.json`:
 
@@ -77,7 +89,7 @@ Crea el archivo `json/strava_tokens.json`:
 
 ## ▶️ Ejecutar el Proyecto
 
-### 6. Sincronizar actividades
+### 7. Sincronizar actividades
 
 ```powershell
 python -m py_strava.main
@@ -96,7 +108,9 @@ python -m py_strava.main
 2025-11-26 15:30:05 - INFO - === Sincronización completada exitosamente ===
 ```
 
-### 7. Generar informe CSV
+**Nota**: La primera sincronización creará automáticamente el archivo `data/strava_activities.log` que registra todas las actividades procesadas.
+
+### 8. Generar informe CSV
 
 ```powershell
 python -m py_strava.informe_strava

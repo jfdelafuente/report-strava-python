@@ -135,6 +135,7 @@ def test_files():
         ('requirements.txt', True),
         ('bd/postgres_credentials.json', False),  # Opcional
         ('json/strava_tokens.json', False),  # Opcional
+        ('data/strava_activities.log', False),  # Opcional pero recomendado
     ]
 
     tests = []

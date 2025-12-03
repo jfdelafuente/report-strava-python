@@ -154,8 +154,18 @@ mkdir -p bd data json
 **Descripción de directorios**:
 
 - **`bd/`** - Base de datos SQLite (`strava.sqlite`) y credenciales de PostgreSQL (opcional)
-- **`data/`** - Archivos generados: logs, reportes CSV
+- **`data/`** - Archivos generados: logs, reportes CSV (incluye `strava_activities.log`)
 - **`json/`** - Archivo de configuración de tokens de Strava (`strava_tokens.json`)
+
+**Nota sobre el archivo de log**: El archivo `data/strava_activities.log` se crea automáticamente en la primera sincronización. Si deseas crearlo manualmente de forma vacía:
+
+```bash
+# En Linux/Mac
+touch data/strava_activities.log
+
+# En Windows
+type nul > data\strava_activities.log
+```
 
 ### 5. Instalar el proyecto
 
