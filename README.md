@@ -1,20 +1,22 @@
 # py-strava
 
-Aplicación Python para sincronizar y analizar actividades de Strava con base de datos local.
+Aplicación Python profesional para sincronizar y analizar actividades de Strava con base de datos local.
 
 ## Descripción
 
-**py-strava** es una herramienta que permite:
+**py-strava** es una herramienta CLI profesional que permite:
 
 - Sincronizar automáticamente tus actividades de Strava con una base de datos local
 - Almacenar información detallada de actividades y kudos recibidos
 - Generar informes y exportar datos a formato CSV
 - Mantener un historial completo de tus entrenamientos
 
-El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas de desarrollo en Python, incluyendo logging profesional, manejo robusto de errores, documentación completa y código modular.
+El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas de desarrollo en Python, incluyendo CLI profesional con Click, logging estructurado, arquitectura modular, manejo robusto de errores y documentación completa.
 
 ## Características
 
+✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
+✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
 ✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
 ✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
 ✅ **Base de datos**: Soporta SQLite y PostgreSQL
@@ -23,43 +25,86 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 ✅ **Logging completo**: Sistema de logs estructurado para debugging
 ✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
 ✅ **Configuración flexible**: Variables de entorno y archivos de configuración
+✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
+
+## Inicio Rápido
+
+```bash
+# 1. Instalar el proyecto
+pip install -e .
+
+# 2. Configurar credenciales en json/strava_tokens.json (ver sección Configuración)
+
+# 3. Inicializar base de datos
+strava init-db
+
+# 4. Sincronizar actividades
+strava sync
+
+# 5. Generar reporte
+strava report
+```
 
 ## Estructura del Proyecto
 
-```
+```plaintext
 py-strava/
-├── py_strava/                  # Código fuente principal
-│   ├── main.py                 # Script principal de sincronización
-│   ├── informe_strava.py       # Generación de informes CSV
-│   ├── config.py               # Configuración centralizada
-│   ├── db_schema.py            # Esquemas SQL y funciones de BD
-│   └── strava/                 # Módulos de Strava
-│       ├── strava_activities.py    # Gestión de actividades
-│       ├── strava_db_postgres.py   # Conexión PostgreSQL
-│       ├── strava_db_sqlite.py     # Conexión SQLite
-│       ├── strava_token.py         # Gestión de tokens
-│       └── strava_fechas.py        # Utilidades de fechas
+├── py_strava/              # Código fuente principal
+│   ├── api/                # Comunicación con Strava API
+│   │   ├── auth.py         # Autenticación OAuth2
+│   │   └── activities.py   # Gestión de actividades y kudos
+│   │
+│   ├── database/           # Persistencia de datos
+│   │   ├── sqlite.py       # Driver SQLite
+│   │   ├── postgres.py     # Driver PostgreSQL
+│   │   └── schema.py       # Esquemas SQL
+│   │
+│   ├── utils/              # Utilidades generales
+│   │   └── dates.py        # Manejo de fechas
+│   │
+│   ├── core/               # Lógica de negocio
+│   │   ├── sync.py         # Sincronización de actividades
+│   │   └── reports.py      # Generación de reportes
+│   │
+│   ├── cli/                # Interfaz de línea de comandos
+│   │   ├── main.py         # Entry point CLI
+│   │   └── commands/       # Subcomandos
+│   │       ├── sync.py
+│   │       ├── report.py
+│   │       └── init_db.py
+│   │
+│   ├── legacy/             # Wrappers deprecados
+│   ├── strava/             # Módulos antiguos (deprecados)
+│   ├── main.py             # Wrapper legacy
+│   ├── informe_strava.py   # Wrapper legacy
+│   └── config.py           # Configuración global
 │
-├── scripts/                    # Scripts de utilidad
-│   ├── init_database.py        # Inicializar base de datos
-│   ├── ejemplo_uso_bd.py       # Ejemplos de uso
-│   └── test_setup.py           # Verificar instalación
+├── scripts/                # Scripts de utilidad
+│   ├── init_database.py
+│   ├── ejemplo_uso_bd.py
+│   └── test_setup.py
 │
-├── docs/                       # Documentación organizada
-│   ├── user/                   # Guías para usuarios
-│   ├── dev/                    # Documentación técnica
-│   └── database/               # Docs de base de datos
+├── docs/                   # Documentación
+│   ├── user/               # Guías de usuario
+│   ├── dev/                # Documentación técnica
+│   └── database/           # Docs de BD
 │
-├── data/                       # Datos generados (logs, CSV)
-├── bd/                         # Base de datos SQLite
-├── json/                       # Configuración (tokens)
+├── requirements/           # Dependencias por entorno
+│   ├── base.txt
+│   ├── dev.txt
+│   └── postgres.txt
 │
-├── README.md                   # Este archivo
-├── requirements.txt            # Dependencias Python
-└── .env.example                # Template de configuración
+├── data/                   # Datos generados (logs, CSV)
+├── bd/                     # Base de datos SQLite
+├── json/                   # Configuración (tokens)
+│
+├── setup.py                # Instalación pip
+├── pyproject.toml          # Configuración moderna
+├── CHANGELOG.md            # Historial de cambios
+└── README.md               # Este archivo
 ```
 
-> **Nota**: El proyecto ha sido reorganizado recientemente. Ver [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles completos de los cambios.
+> **Nota**: El proyecto ha sido completamente reestructurado (Fases 1-3). Ver [CHANGELOG.md](CHANGELOG.md) y [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) para detalles completos.
 
 ## Requisitos
 
@@ -89,49 +134,61 @@ source venv/bin/activate  # En Windows: venv\Scripts\activate
 python3.8 -m pip install --upgrade pip
 ```
 
-### 4. Instalar dependencias
+### 4. Instalar el proyecto
+
+**Modo desarrollo (recomendado)**:
 
 ```bash
-pip install -r requirements.txt
+# Instala el proyecto en modo editable con el comando 'strava'
+pip install -e .
 ```
+
+**O con dependencias de desarrollo**:
+
+```bash
+# Incluye pytest, mypy, black, flake8, etc.
+pip install -e ".[dev]"
+```
+
+**O con soporte PostgreSQL**:
+
+```bash
+# Incluye psycopg2-binary
+pip install -e ".[postgres]"
+```
+
+**Todo junto**:
+
+```bash
+pip install -e ".[dev,postgres]"
+```
+
+Después de la instalación, el comando `strava` estará disponible globalmente en tu PATH.
 
 ### 5. Verificar instalación
 
-**IMPORTANTE**: Después de instalar, verifica que todo esté correctamente configurado:
+**Verificar que el comando `strava` está disponible**:
 
 ```bash
-python scripts/test_setup.py
+# Verificar instalación
+strava --version
+# Debería mostrar: strava, version 2.2.0
+
+# Ver ayuda
+strava --help
+
+# Verificar comandos disponibles
+strava sync --help
+strava report --help
+strava init-db --help
 ```
 
-Este script verifica:
-
-- ✓ Estructura de directorios
-- ✓ Archivos necesarios
-- ✓ Dependencias instaladas
-- ✓ Imports funcionando
-- ✓ Configuración básica
-
-**Opciones del script de verificación**:
+**Script de verificación completo** (opcional):
 
 ```bash
 python scripts/test_setup.py           # Verificación completa
 python scripts/test_setup.py --quick   # Verificación rápida
 python scripts/test_setup.py --verbose # Información detallada
-python scripts/test_setup.py --help    # Ver ayuda
-```
-
-### 6. Instalación opcional para PostgreSQL
-
-Si vas a usar PostgreSQL, instala las dependencias adicionales:
-
-```bash
-# Linux/macOS
-sudo apt-get update
-sudo apt-get install libpq-dev python3.8-dev
-pip install psycopg2
-
-# Windows
-pip install psycopg2-binary
 ```
 
 ## Configuración
@@ -163,17 +220,15 @@ Crea el archivo `json/strava_tokens.json`:
 
 **El proyecto usa SQLite por defecto** (no requiere configuración adicional). Si prefieres PostgreSQL, sigue las instrucciones abajo.
 
-#### Opción A: SQLite (por defecto - recomendado para desarrollo)
+#### Opción A: SQLite (por defecto - recomendado)
 
 ✅ **No requiere configuración** - El archivo SQLite se crea automáticamente en `bd/strava.sqlite`.
 
-El proyecto detecta automáticamente si `psycopg2` está disponible. Si no lo está, usa SQLite.
+#### Opción B: PostgreSQL (opcional)
 
-#### Opción B: PostgreSQL (opcional - para producción)
+##### Método 1: Archivo de credenciales (recomendado)
 
-**Método 1: Archivo de credenciales (recomendado)**
-
-Crea el archivo `bd/postgres_credentials.json` (puedes usar `postgres_credentials.json.example` como plantilla):
+Crea el archivo `bd/postgres_credentials.json`:
 
 ```json
 {
@@ -185,9 +240,7 @@ Crea el archivo `bd/postgres_credentials.json` (puedes usar `postgres_credential
 }
 ```
 
-**Método 2: Variables de entorno**
-
-Configura las variables de entorno o edita [config.py](py_strava/config.py):
+##### Método 2: Variables de entorno
 
 ```bash
 export DB_HOST=localhost
@@ -197,97 +250,176 @@ export DB_USER=postgres
 export DB_PASSWORD=tu_password
 ```
 
-**Método 3: Instalar psycopg2**
+##### Método 3: Instalar soporte PostgreSQL
 
 ```bash
-pip install psycopg2-binary
+pip install -e ".[postgres]"
 ```
-
-Si tienes problemas en Windows, el proyecto funcionará perfectamente con SQLite (opción por defecto).
 
 ### 4. Inicializar la base de datos
 
-**Para SQLite** (recomendado para empezar):
+**Usar el comando CLI** (recomendado):
 
 ```bash
-python scripts/init_database.py
+# Crear tablas Activities y Kudos
+strava init-db
+
+# Solo verificar (no crear)
+strava init-db --verify
+
+# Recrear todas las tablas (¡CUIDADO! Elimina datos)
+strava init-db --reset
+
+# Base de datos personalizada
+strava init-db --db-path ./mi_bd/strava.db
 ```
 
-Este script:
-
-- Crea automáticamente el archivo `bd/strava.sqlite`
-- Crea las tablas `Activities` y `Kudos`
-- Verifica que todo esté correctamente configurado
-
-**Opciones disponibles**:
+**O usar el script legacy**:
 
 ```bash
 python scripts/init_database.py              # Crear tablas si no existen
 python scripts/init_database.py --verify     # Verificar tablas existentes
-python scripts/init_database.py --reset      # Recrear todas las tablas (¡cuidado!)
+python scripts/init_database.py --reset      # Recrear todas las tablas
 ```
 
 Ver [docs/database/INIT_DATABASE.md](docs/database/INIT_DATABASE.md) para más detalles.
 
-**Para PostgreSQL**:
-
-Si configuraste PostgreSQL, el script detectará automáticamente las credenciales y usará PostgreSQL en lugar de SQLite.
+**Para PostgreSQL**: El proyecto detecta automáticamente las credenciales de PostgreSQL si están configuradas.
 
 ## Uso
 
-### Sincronizar actividades
-
-Ejecuta el script principal para sincronizar tus actividades de Strava:
+### Flujo de trabajo típico
 
 ```bash
-python -m py_strava.main
+# 1. Inicializar BD (solo primera vez)
+strava init-db
+
+# 2. Sincronizar actividades
+strava sync
+
+# 3. Generar reporte
+strava report
+
+# 4. Ver resultados
+cat data/strava_data.csv
 ```
 
-**IMPORTANTE:** Siempre ejecuta con `python -m py_strava.main` desde la raíz del proyecto, no con `python py_strava/main.py`.
+### Comando `strava sync` - Sincronizar actividades
 
-**Salida esperada:**
-
-```
-2025-11-26 10:30:15 - INFO - === Inicio de sincronización de Strava ===
-2025-11-26 10:30:15 - INFO - Conexión a base de datos establecida
-2025-11-26 10:30:16 - INFO - Token de acceso obtenido correctamente
-2025-11-26 10:30:16 - INFO - Última sincronización: 2025-11-20T08:00:00Z
-2025-11-26 10:30:17 - INFO - Obteniendo actividades desde Strava...
-2025-11-26 10:30:18 - INFO - 5 actividades obtenidas
-2025-11-26 10:30:19 - INFO - 5 actividades cargadas en la base de datos
-2025-11-26 10:30:22 - INFO - 12 kudos cargados en la base de datos
-2025-11-26 10:30:22 - INFO - Log actualizado: 2025-11-26T10:30:22Z - 5 actividades
-2025-11-26 10:30:22 - INFO - === Sincronización completada exitosamente ===
-```
-
-### Generar informes
-
-Genera un informe CSV con actividades y kudos:
+**Uso básico**:
 
 ```bash
-python -m py_strava.informe_strava
+# Sincronización incremental (desde última sincronización)
+strava sync
 ```
 
-**Salida esperada:**
+**Opciones avanzadas**:
 
-```
-2025-11-26 10:35:00 - INFO - === Inicio de generación de informe de kudos ===
-2025-11-26 10:35:00 - INFO - Conexión establecida con la base de datos: bd/strava.sqlite
-2025-11-26 10:35:00 - INFO - 150 registros obtenidos de la base de datos
-2025-11-26 10:35:01 - INFO - Datos exportados correctamente a data/strava_data2.csv
-2025-11-26 10:35:01 - INFO - Total de registros exportados: 150
-2025-11-26 10:35:01 - INFO - Conexión a la base de datos cerrada
-2025-11-26 10:35:01 - INFO - === Generación de informe completada ===
-2025-11-26 10:35:01 - INFO - Informe generado exitosamente en: data/strava_data2.csv
+```bash
+# Sincronizar desde fecha específica
+strava sync --since 2024-01-01
+
+# Sincronizar desde timestamp Unix
+strava sync --since 1704067200
+
+# Sincronización completa (todas las actividades)
+strava sync --force
+
+# Base de datos personalizada
+strava sync --db-path ./mi_bd/strava.db
+
+# Archivo de tokens personalizado
+strava sync --token-file ./config/tokens.json
+
+# Log personalizado
+strava sync --activities-log ./logs/activities.log
+
+# Modo verbose (debugging)
+strava --verbose sync
+
+# Modo silencioso (solo errores)
+strava --quiet sync
 ```
 
-El archivo CSV generado tendrá el siguiente formato:
+**Salida esperada**:
+
+```plaintext
+[INFO] === Sincronización de Strava ===
+[INFO] Token de acceso válido hasta: 2025-12-03 18:30:00
+[INFO] Última sincronización: 2025-11-20T08:00:00Z
+[INFO] Obteniendo actividades desde Strava...
+[SUCCESS] 5 actividades sincronizadas
+[SUCCESS] 12 kudos sincronizados
+[SUCCESS] Sincronización completada
+```
+
+### Comando `strava report` - Generar informes
+
+**Uso básico**:
+
+```bash
+# Generar reporte CSV por defecto
+strava report
+```
+
+**Opciones avanzadas**:
+
+```bash
+# Output personalizado
+strava report -o mi_reporte.csv
+
+# Con fecha en el nombre
+strava report -o "reporte_$(date +%Y%m%d).csv"
+
+# Base de datos personalizada
+strava report --db-path ./mi_bd/strava.db
+
+# Especificar formato (solo CSV por ahora)
+strava report --format csv
+```
+
+**Salida esperada**:
+
+```plaintext
+[INFO] === Generación de Reporte ===
+[INFO] Base de datos: bd/strava.sqlite
+[INFO] 150 registros encontrados
+[SUCCESS] Reporte generado: data/strava_data.csv
+[INFO] Total exportado: 150 registros
+```
+
+**Formato del CSV generado**:
 
 ```csv
 FIRST_NAME,LAST_NAME,TIPO,ACTIVIDAD,START_DATE
 Juan,García,Run,12345678,2025-11-26T08:00:00Z
 María,López,Ride,12345679,2025-11-25T17:30:00Z
 ...
+```
+
+### Comando `strava init-db` - Inicializar base de datos
+
+```bash
+# Crear tablas (si no existen)
+strava init-db
+
+# Solo verificar sin crear
+strava init-db --verify
+
+# Recrear todas las tablas (¡CUIDADO!)
+strava init-db --reset
+
+# BD personalizada
+strava init-db --db-path ./custom.db
+```
+
+### Comandos legacy (deprecados pero funcionales)
+
+```bash
+# Estos comandos siguen funcionando pero emiten warnings
+python -m py_strava.main              # usar: strava sync
+python -m py_strava.informe_strava    # usar: strava report
+python scripts/init_database.py       # usar: strava init-db
 ```
 
 ## Configuración Avanzada
@@ -351,37 +483,46 @@ DB_PASSWORD=tu_password
 
 ## Mejoras Recientes
 
-### v2.1.0 - Reorganización del Proyecto (Diciembre 2025)
+### v2.2.0 - CLI Profesional (Diciembre 2025) ✨ ACTUAL
 
-El proyecto ha sido reorganizado para mejor mantenibilidad y experiencia del desarrollador:
+Implementación de CLI profesional con Click framework:
+
+- 🚀 **CLI Profesional**: Comandos `strava sync`, `strava report`, `strava init-db`
+- 📦 **Instalación pip**: `pip install -e .` - comando disponible globalmente
+- 🏗️ **Arquitectura modular**: `api/`, `database/`, `core/`, `cli/`, `utils/`
+- 🎯 **Entry points**: setup.py y pyproject.toml para instalación estándar
+- 💡 **Help integrado**: `--help` en todos los comandos
+- 🎨 **Mensajes coloreados**: Salida user-friendly en terminal
+- 🔧 **Opciones configurables**: Flags para personalizar comportamiento
+- 📚 **Documentación completa**: CHANGELOG.md, ARQUITECTURA.md
+- ✅ **100% retrocompatible**: Comandos antiguos siguen funcionando
+
+**Migración de comandos**:
+
+| Antes (v2.1.0) | Después (v2.2.0) | Mejora |
+|----------------|------------------|--------|
+| `python -m py_strava.main` | `strava sync` | -54% caracteres |
+| `python -m py_strava.informe_strava` | `strava report` | -65% caracteres |
+| `python scripts/init_database.py` | `strava init-db` | -57% caracteres |
+| No disponible | `strava --help` | Ayuda integrada |
+| No disponible | `strava --version` | Versión integrada |
+
+Ver [CHANGELOG.md](CHANGELOG.md) para detalles completos.
+
+### v2.1.0 - Reorganización del Proyecto (Noviembre 2025)
 
 - 📁 **Estructura organizada**: Documentación en `/docs`, scripts en `/scripts`
 - 🧪 **Tests mejorados**: Script de verificación con múltiples modos
 - 📚 **Documentación clara**: Separada por audiencia (usuario/desarrollador/BD)
 - 🔧 **Scripts de utilidad**: Herramientas para setup e inicialización
 
-Ver [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles completos.
-
-### v2.0.0 - Refactorización Completa (Noviembre 2025)
-
-Este proyecto ha sido completamente refactorizado. Consulta [docs/dev/](docs/dev/) para conocer en detalle:
+### v2.0.0 - Refactorización Inicial (Octubre 2025)
 
 - ✅ Sistema de logging profesional
 - ✅ Manejo robusto de errores
 - ✅ Código modular y documentado
 - ✅ Type hints y validaciones
 - ✅ Optimizaciones de rendimiento
-- ✅ Configuración centralizada
-- ✅ Mejores prácticas de Python (PEP 8)
-
-**Comparación de métricas:**
-
-| Métrica | Antes | Después | Mejora |
-|---------|-------|---------|--------|
-| Funciones documentadas | 0% | 100% | +100% |
-| Cobertura de logging | 10% | 100% | +90% |
-| Manejo de errores | Básico | Completo | ✅ |
-| Modularidad | Baja | Alta | ✅ |
 
 ## Solución de Problemas
 
@@ -507,23 +648,24 @@ Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para det
 
 Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para el plan completo.
 
-**Fase 2 - Refactoring de módulos**:
+**Completado** ✅:
 
-- [ ] Reorganizar código en `api/`, `database/`, `core/`, `utils/`
-- [ ] Crear wrappers de compatibilidad
+- [x] **Fase 1**: Reorganización de estructura y documentación
+- [x] **Fase 2**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
+- [x] **Fase 3**: CLI profesional con Click: `strava sync`, `strava report`, `strava init-db`
 
-**Fase 3 - CLI profesional**:
+**En progreso** 🔄:
 
-- [ ] Implementar CLI con Click: `strava sync`, `strava report`
-- [ ] Instalación con pip: `pip install -e .`
+- [ ] **Fase 4**: Limpieza final y release v2.2.0
 
-**Fase 4 - Mejoras adicionales**:
+**Futuro** 🔵:
 
 - [ ] Tests unitarios con pytest
 - [ ] CI/CD con GitLab CI
 - [ ] Validación de tipos con mypy
 - [ ] Linting automático (black, flake8)
-- [ ] Dashboard web interactivo (futuro)
+- [ ] Publicación en PyPI
+- [ ] Dashboard web interactivo
 
 ## Contribuir
 
@@ -564,16 +706,18 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 🚀 **Activo** - El proyecto está en desarrollo activo y se aceptan contribuciones.
 
 **Última actualización**: 3 de diciembre de 2025
-**Versión**: 2.1.0 (Reorganizado - Fase 1 completada)
+**Versión**: 2.2.0 (CLI Profesional - Fases 1-3 completadas)
+**Estado**: En Fase 4 (Limpieza y Release)
 
 ### Roadmap
 
 - ✅ **Fase 1 (Completada)**: Reorganización de estructura y documentación
-- ⏳ **Fase 2 (Planificada)**: Refactoring de módulos
-- ⏳ **Fase 3 (Planificada)**: CLI profesional con Click
-- 🔵 **Fase 4 (Opcional)**: Limpieza y release PyPI
+- ✅ **Fase 2 (Completada)**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
+- ✅ **Fase 3 (Completada)**: CLI profesional con Click
+- 🔄 **Fase 4 (En Progreso)**: Limpieza y release v2.2.0
+- 🔵 **Futuro**: PyPI, tests, CI/CD
 
-Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para detalles completos.
+Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) y [CHANGELOG.md](CHANGELOG.md) para detalles completos.
 
 ---
 
@@ -581,13 +725,18 @@ Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para detalles completos.
 
 ### Documentación del Proyecto
 
-- [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) - Propuesta de reorganización del proyecto
+- [CHANGELOG.md](CHANGELOG.md) - Historial de cambios oficial
+- [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) - Arquitectura del proyecto v2.2.0
 - [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) - Plan de migración por fases
-- [COMPARACION_ESTRUCTURA.md](COMPARACION_ESTRUCTURA.md) - Comparativa antes/después
-- [RESUMEN_EJECUTIVO_REESTRUCTURACION.md](RESUMEN_EJECUTIVO_REESTRUCTURACION.md) - Resumen ejecutivo
 - [docs/user/](docs/user/) - Guías para usuarios
 - [docs/dev/](docs/dev/) - Documentación técnica
 - [docs/database/](docs/database/) - Documentación de base de datos
+
+### Changelogs por Fase
+
+- [CHANGELOG_FASE_1.md](CHANGELOG_FASE_1.md) - Reorganización del proyecto
+- [CHANGELOG_FASE_2.md](CHANGELOG_FASE_2.md) - Refactoring de módulos
+- [CHANGELOG_FASE_3.md](CHANGELOG_FASE_3.md) - CLI profesional
 
 ### Recursos Externos
 
