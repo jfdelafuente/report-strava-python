@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 """
 Script de verificación para comprobar que el proyecto está configurado correctamente.
+
+Uso:
+    python scripts/test_setup.py           # Verificación completa
+    python scripts/test_setup.py --quick   # Verificación rápida (solo imports)
+    python scripts/test_setup.py --verbose # Verificación con más detalles
 """
 
 import sys
+import argparse
 from pathlib import Path
+
+# Añadir el directorio raíz del proyecto al path de Python
+# Esto permite importar py_strava desde cualquier ubicación
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Variable global para modo verbose
+VERBOSE = False
 
 
 def check_mark(condition):
@@ -86,7 +100,8 @@ def test_directories():
     """Verifica que existan los directorios necesarios."""
     print("\n=== Verificando Estructura de Directorios ===\n")
 
-    base_dir = Path.cwd()
+    # Usar la raíz del proyecto, no el directorio actual
+    base_dir = project_root
     dirs_to_check = [
         'py_strava',
         'py_strava/strava',
@@ -109,7 +124,8 @@ def test_files():
     """Verifica que existan los archivos necesarios."""
     print("\n=== Verificando Archivos Clave ===\n")
 
-    base_dir = Path.cwd()
+    # Usar la raíz del proyecto, no el directorio actual
+    base_dir = project_root
     files_to_check = [
         ('py_strava/__init__.py', True),
         ('py_strava/strava/__init__.py', True),
@@ -121,15 +137,20 @@ def test_files():
         ('json/strava_tokens.json', False),  # Opcional
     ]
 
+    tests = []
     for file_path, required in files_to_check:
         full_path = base_dir / file_path
         exists = full_path.exists() and full_path.is_file()
 
         if required:
             print(f"{check_mark(exists)} {file_path} {'(REQUERIDO)' if required else '(opcional)'}")
+            if required:
+                tests.append(exists)
         else:
             status = "[OK]" if exists else "[INFO]"
             print(f"{status}  {file_path} (opcional - {'encontrado' if exists else 'no encontrado'})")
+
+    return all(tests)
 
 
 def test_dependencies():
@@ -196,18 +217,46 @@ def test_config():
 
 def main():
     """Función principal que ejecuta todas las verificaciones."""
+    global VERBOSE
+
+    # Parsear argumentos
+    parser = argparse.ArgumentParser(
+        description='Verificar configuración del proyecto py-strava',
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument('--quick', action='store_true',
+                       help='Verificación rápida (solo imports críticos)')
+    parser.add_argument('--verbose', action='store_true',
+                       help='Mostrar información detallada')
+
+    args = parser.parse_args()
+    VERBOSE = args.verbose
+
     print("=" * 60)
     print("VERIFICACIÓN DE CONFIGURACIÓN - py-strava")
     print("=" * 60)
 
+    if VERBOSE:
+        print(f"Raíz del proyecto: {project_root}")
+        print(f"Ejecutando desde: {Path(__file__).parent}")
+        print(f"Python: {sys.version}")
+        print("=" * 60)
+
     results = []
 
     # Ejecutar tests
-    results.append(("Directorios", test_directories()))
-    results.append(("Archivos", test_files()))
-    results.append(("Dependencias", test_dependencies()))
-    results.append(("Imports", test_imports()))
-    results.append(("Configuración", test_config()))
+    if args.quick:
+        # Modo rápido: solo imports y dependencias
+        print("\n[MODO RÁPIDO] Ejecutando verificaciones esenciales...\n")
+        results.append(("Dependencias", test_dependencies()))
+        results.append(("Imports", test_imports()))
+    else:
+        # Modo completo
+        results.append(("Directorios", test_directories()))
+        results.append(("Archivos", test_files()))
+        results.append(("Dependencias", test_dependencies()))
+        results.append(("Imports", test_imports()))
+        results.append(("Configuración", test_config()))
 
     # Resumen
     print("\n" + "=" * 60)
@@ -224,12 +273,22 @@ def main():
     print("\n" + "=" * 60)
     if all_passed:
         print("[SUCCESS] TODAS LAS VERIFICACIONES PASARON")
-        print("\nPuedes ejecutar:")
-        print("  python -m py_strava.main")
-        print("  python -m py_strava.informe_strava")
+        print("\nProximos pasos:")
+        print("  1. Sincronizar actividades:")
+        print("     python -m py_strava.main")
+        print("\n  2. Generar informe:")
+        print("     python -m py_strava.informe_strava")
+        print("\n  3. Inicializar base de datos (si no esta hecha):")
+        print("     python scripts/init_database.py")
+        print("\n  4. Ver ejemplos de uso:")
+        print("     python scripts/ejemplo_uso_bd.py")
     else:
         print("[ERROR] ALGUNAS VERIFICACIONES FALLARON")
-        print("\nRevisa los errores arriba y consulta SOLUCION_ERRORES.md")
+        print("\nAcciones recomendadas:")
+        print("  1. Revisa los errores marcados con [FAIL] arriba")
+        print("  2. Consulta docs/user/SOLUCION_ERRORES.md")
+        print("  3. Verifica que ejecutas desde la raiz del proyecto")
+        print("  4. Asegurate de que el venv esta activado")
     print("=" * 60)
 
     return 0 if all_passed else 1
