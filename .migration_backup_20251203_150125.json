@@ -1,0 +1,202 @@
+[
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs",
+    "description": ""
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\user",
+    "description": "Documentaci\u00f3n para usuarios"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev",
+    "description": "Documentaci\u00f3n para desarrolladores"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\database",
+    "description": "Documentaci\u00f3n de base de datos"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\scripts",
+    "description": "Scripts de utilidad"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests",
+    "description": "Tests unificados"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\unit",
+    "description": "Tests unitarios"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\integration",
+    "description": "Tests de integraci\u00f3n"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\fixtures",
+    "description": "Datos de prueba"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\examples",
+    "description": "Ejemplos de uso"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\examples\\basic",
+    "description": "Ejemplos b\u00e1sicos"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\examples\\advanced",
+    "description": "Ejemplos avanzados"
+  },
+  {
+    "action": "create_dir",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\requirements",
+    "description": "Dependencias por entorno"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\INICIO_RAPIDO.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\user\\INICIO_RAPIDO.md",
+    "reason": "Doc de usuario"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\SOLUCION_ERRORES.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\user\\SOLUCION_ERRORES.md",
+    "reason": "Doc de usuario"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\MEJORAS.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\MEJORAS_IMPLEMENTADAS.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\MEJORAS_MODULOS_DATABASE.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\MEJORAS_MODULOS_DATABASE.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\MEJORAS_STRAVA_DB_SQLITE.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\MEJORAS_STRAVA_DB_SQLITE.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\MEJORAS_STRAVA_TOKEN_Y_MAIN.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\MEJORAS_STRAVA_TOKEN_Y_MAIN.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\ANALISIS_MEJORAS_POSTGRES.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\ANALISIS_MEJORAS_POSTGRES.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\RESUMEN_CAMBIOS.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\RESUMEN_CAMBIOS.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\SSL_CERTIFICADOS.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\dev\\SSL_CERTIFICADOS.md",
+    "reason": "Doc de desarrollo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\INIT_DATABASE.md",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\docs\\database\\INIT_DATABASE.md",
+    "reason": "Doc de BD"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\init_database.py",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\scripts\\init_database.py",
+    "reason": "Script de utilidad"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\ejemplo_uso_bd.py",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\scripts\\ejemplo_uso_bd.py",
+    "reason": "Script de ejemplo"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\test_setup.py",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\scripts\\test_setup.py",
+    "reason": "Script de verificaci\u00f3n"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\test\\test_fechas.py",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\unit\\test_fechas.py",
+    "reason": "Test unitario"
+  },
+  {
+    "action": "move",
+    "src": "C:\\My Program Files\\workspace-python\\report-strava-python\\test\\test_strava_token.py",
+    "dst": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\unit\\test_strava_token.py",
+    "reason": "Test unitario"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\examples\\README.md",
+    "description": "README de ejemplos"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\.env.example",
+    "description": "Template de configuraci\u00f3n"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\pytest.ini",
+    "description": "Configuraci\u00f3n de pytest"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\tests\\conftest.py",
+    "description": "Configuraci\u00f3n de pytest"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\requirements\\base.txt",
+    "description": "Dependencias base"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\requirements\\dev.txt",
+    "description": "Dependencias desarrollo"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\data\\README.md",
+    "description": "README de data"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\bd\\README.md",
+    "description": "README de bd"
+  },
+  {
+    "action": "create",
+    "path": "C:\\My Program Files\\workspace-python\\report-strava-python\\json\\README.md",
+    "description": "README de json"
+  }
+]
