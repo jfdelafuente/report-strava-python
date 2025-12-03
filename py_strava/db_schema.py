@@ -40,7 +40,7 @@ def initialize_database(conn):
     Args:
         conn: Conexión a la base de datos
     """
-    import strava.strava_db_postgres as stravaBBDD
+    import strava.strava_db_sqlite as stravaBBDD
 
     stravaBBDD.commit(conn, CREATE_TABLE_ACTIVITIES)
     stravaBBDD.commit(conn, CREATE_TABLE_KUDOS)
@@ -55,7 +55,7 @@ def reset_database(conn):
     Args:
         conn: Conexión a la base de datos
     """
-    import strava.strava_db_postgres as stravaBBDD
+    import strava.strava_db_sqlite as stravaBBDD
 
     stravaBBDD.commit(conn, DROP_TABLE_ACTIVITIES)
     stravaBBDD.commit(conn, DROP_TABLE_KUDOS)
