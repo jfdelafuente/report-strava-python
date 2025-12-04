@@ -2,10 +2,10 @@
 py_strava - Herramienta para sincronizar y generar informes de actividades de Strava.
 
 Este paquete proporciona funcionalidad para:
-- Autenticaci髇 con la API de Strava
-- Sincronizaci髇 de actividades
-- Generaci髇 de informes en m鷏tiples formatos (Excel, PDF)
-- Gesti髇 de base de datos (SQLite y PostgreSQL)
+- Autenticaci贸n con la API de Strava
+- Sincronizaci贸n de actividades
+- Generaci贸n de informes en m煤ltiples formatos (Excel, PDF)
+- Gesti贸n de base de datos (SQLite y PostgreSQL)
 """
 
 __version__ = "0.1.0"
