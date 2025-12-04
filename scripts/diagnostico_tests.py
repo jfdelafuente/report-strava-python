@@ -135,7 +135,7 @@ def verificar_pytest_ini():
     pytest_ini = base_dir / "pytest.ini"
 
     if pytest_ini.exists():
-        print(f"✅ pytest.ini encontrado")
+        print("✅ pytest.ini encontrado")
         with open(pytest_ini, encoding="utf-8") as f:
             contenido = f.read()
             print("\nContenido:")
@@ -144,7 +144,7 @@ def verificar_pytest_ini():
             if len(contenido) > 500:
                 print("...")
     else:
-        print(f"❌ pytest.ini NO EXISTE")
+        print("❌ pytest.ini NO EXISTE")
         return False
 
     print()

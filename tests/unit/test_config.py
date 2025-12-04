@@ -3,8 +3,6 @@
 import os
 from pathlib import Path
 
-import pytest
-
 
 def test_config_imports():
     """Verificar que el módulo config se puede importar correctamente."""

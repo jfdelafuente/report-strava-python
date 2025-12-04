@@ -8,7 +8,6 @@ actividades, generar reportes e inicializar la base de datos.
 
 import logging
 import sys
-from pathlib import Path
 
 import click
 

@@ -50,7 +50,7 @@ def test_imports():
         tests.append(True)
     except ImportError as e:
         if "psycopg2" in str(e):
-            print(f"[INFO] strava_db_postgres (requiere psycopg2 - usa SQLite en su lugar)")
+            print("[INFO] strava_db_postgres (requiere psycopg2 - usa SQLite en su lugar)")
             tests.append(True)  # No falla el test
         else:
             print(f"{check_mark(False)} Error al importar strava_db_postgres: {e}")

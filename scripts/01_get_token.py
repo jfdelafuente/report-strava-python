@@ -173,7 +173,7 @@ def display_token_info(tokens: Dict[str, Any]) -> None:
     # Información del atleta (si está disponible)
     athlete = tokens.get("athlete", {})
     if athlete:
-        print(f"\n👤 Información del atleta:")
+        print("\n👤 Información del atleta:")
         print(f"   Nombre:         {athlete.get('firstname', '')} {athlete.get('lastname', '')}")
         print(f"   ID:             {athlete.get('id', 'N/A')}")
 

@@ -7,12 +7,10 @@ hacia la base de datos local.
 
 import logging
 from datetime import datetime
-from pathlib import Path
 
 import click
 
 from py_strava.core.sync import run_sync
-from py_strava.utils import dates as strava_dates
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +78,7 @@ def sync(since, token_file, activities_log, db_path, force):
                 click.echo(
                     f'[INFO] Sincronizando desde timestamp: {since_timestamp} ({dt.strftime("%Y-%m-%d %H:%M:%S")})'
                 )
-        except ValueError as e:
+        except ValueError:
             click.secho(f"[ERROR] Formato de fecha inválido: {since}", fg="red", err=True)
             click.echo("Usa formato YYYY-MM-DD o timestamp Unix", err=True)
             raise click.Abort()

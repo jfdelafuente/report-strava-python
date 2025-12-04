@@ -1,7 +1,5 @@
 """Configuración de pytest y fixtures compartidos."""
 
-import shutil
-import tempfile
 from pathlib import Path
 
 import pytest

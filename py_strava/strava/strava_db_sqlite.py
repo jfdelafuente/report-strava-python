@@ -11,7 +11,6 @@ Este módulo proporciona una interfaz de alto nivel para SQLite con:
 
 import logging
 import sqlite3
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 

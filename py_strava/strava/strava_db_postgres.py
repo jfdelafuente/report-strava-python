@@ -12,7 +12,6 @@ Este módulo proporciona una interfaz de alto nivel para PostgreSQL con:
 
 import json
 import logging
-import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
