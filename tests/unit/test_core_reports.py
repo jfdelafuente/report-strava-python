@@ -152,10 +152,6 @@ class TestFetchKudosData:
         conn = connect_to_database(test_db_with_data)
         results = fetch_kudos_data(conn)
 
-        # Debe estar ordenado por start_date_local DESC, lastname, firstname
-        # El último registro (más reciente) debe aparecer primero
-        first_result = results[0]
-
         # Verificar que hay datos
         assert len(results) > 0
 
@@ -323,7 +319,7 @@ class TestRunReport:
 
     def test_run_report_default_parameters(self, test_db_with_data):
         """Verificar que run_report usa parámetros por defecto."""
-        from py_strava.core.reports import DEFAULT_DB_PATH, DEFAULT_OUTPUT_CSV, run_report
+        from py_strava.core.reports import DEFAULT_DB_PATH, DEFAULT_OUTPUT_CSV
 
         # Esta función usa defaults, verificamos que están definidos
         assert DEFAULT_DB_PATH is not None

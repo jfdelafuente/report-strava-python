@@ -136,11 +136,6 @@ def test_config_uses_environment_variables():
     """Verificar que config respeta variables de entorno."""
     import importlib
 
-    from py_strava import config
-
-    # Guardar valor original
-    original_log_level = config.LOG_LEVEL
-
     # Establecer variable de entorno
     os.environ["LOG_LEVEL"] = "DEBUG"
 
