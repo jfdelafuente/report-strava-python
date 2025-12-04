@@ -24,7 +24,7 @@ class TestStravaToken:
     """Tests legacy refactorizados con mocks."""
 
     def setup_method(self):
-        """Setup para cada test."""
+        """Set up test fixtures."""
         self.STRAVA_TOKEN_JSON = "json/test/strava_tokens.json"
         self.access_token = "f4e2939500ffa174654f91a9177e05b87d217938"
         self.expires_at = 1613511684
