@@ -27,26 +27,26 @@ def ejemplo_insertar_actividad():
     print("EJEMPLO 1: Insertar una actividad")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     # Datos de ejemplo de una actividad
     actividad = {
-        'id_activity': 12345678901,
-        'name': 'Morning Run',
-        'start_date_local': '2025-12-03T07:30:00Z',
-        'type': 'Run',
-        'distance': 5420.5,
-        'moving_time': 1850,
-        'elapsed_time': 1920,
-        'total_elevation_gain': 45.2,
-        'end_latlng': '[40.4168, -3.7038]',
-        'kudos_count': 5,
-        'external_id': 98765
+        "id_activity": 12345678901,
+        "name": "Morning Run",
+        "start_date_local": "2025-12-03T07:30:00Z",
+        "type": "Run",
+        "distance": 5420.5,
+        "moving_time": 1850,
+        "elapsed_time": 1920,
+        "total_elevation_gain": 45.2,
+        "end_latlng": "[40.4168, -3.7038]",
+        "kudos_count": 5,
+        "external_id": 98765,
     }
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Insertar la actividad
-        activity_id = db.insert(conn, 'Activities', actividad)
+        activity_id = db.insert(conn, "Activities", actividad)
         print(f"[OK] Actividad insertada con ID: {activity_id}")
         print(f"  Nombre: {actividad['name']}")
         print(f"  Distancia: {actividad['distance']/1000:.2f} km")
@@ -59,33 +59,33 @@ def ejemplo_insertar_kudos():
     print("EJEMPLO 2: Insertar kudos")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     # Lista de kudos de ejemplo
     kudos_list = [
         {
-            'resource_state': '2',
-            'firstname': 'Juan',
-            'lastname': 'Pérez',
-            'id_activity': 12345678901
+            "resource_state": "2",
+            "firstname": "Juan",
+            "lastname": "Pérez",
+            "id_activity": 12345678901,
         },
         {
-            'resource_state': '2',
-            'firstname': 'María',
-            'lastname': 'García',
-            'id_activity': 12345678901
+            "resource_state": "2",
+            "firstname": "María",
+            "lastname": "García",
+            "id_activity": 12345678901,
         },
         {
-            'resource_state': '2',
-            'firstname': 'Carlos',
-            'lastname': 'López',
-            'id_activity': 12345678901
-        }
+            "resource_state": "2",
+            "firstname": "Carlos",
+            "lastname": "López",
+            "id_activity": 12345678901,
+        },
     ]
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Insertar múltiples kudos
-        count = db.insert_many(conn, 'Kudos', kudos_list)
+        count = db.insert_many(conn, "Kudos", kudos_list)
         print(f"[OK] {count} kudos insertados")
 
         for kudo in kudos_list:
@@ -98,7 +98,7 @@ def ejemplo_consultar_actividades():
     print("EJEMPLO 3: Consultar actividades")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Consultar todas las actividades
@@ -123,7 +123,7 @@ def ejemplo_consultar_con_join():
     print("EJEMPLO 4: Consultar actividades con kudos (JOIN)")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     with db.DatabaseConnection(str(db_path)) as conn:
         query = """
@@ -145,13 +145,13 @@ def ejemplo_consultar_con_join():
 
         current_activity = None
         for resultado in resultados:
-            if resultado['activity_name'] != current_activity:
-                current_activity = resultado['activity_name']
+            if resultado["activity_name"] != current_activity:
+                current_activity = resultado["activity_name"]
                 print(f"\n{resultado['activity_name']} ({resultado['activity_type']})")
                 print(f"  Distancia: {resultado['distance']/1000:.2f} km")
                 print("  Kudos:")
 
-            if resultado['firstname']:
+            if resultado["firstname"]:
                 print(f"    - {resultado['firstname']} {resultado['lastname']}")
 
 
@@ -161,26 +161,20 @@ def ejemplo_actualizar_kudos():
     print("EJEMPLO 5: Actualizar contador de kudos")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Contar kudos reales
         resultado = db.fetch_one(
-            conn,
-            "SELECT COUNT(*) as count FROM Kudos WHERE id_activity = ?",
-            (12345678901,)
+            conn, "SELECT COUNT(*) as count FROM Kudos WHERE id_activity = ?", (12345678901,)
         )
 
-        kudos_reales = resultado['count']
+        kudos_reales = resultado["count"]
         print(f"Kudos reales en la BD: {kudos_reales}")
 
         # Actualizar el contador
         rows = db.update(
-            conn,
-            'Activities',
-            {'kudos_count': kudos_reales},
-            "id_activity = ?",
-            (12345678901,)
+            conn, "Activities", {"kudos_count": kudos_reales}, "id_activity = ?", (12345678901,)
         )
 
         print(f"[OK] {rows} actividad actualizada")
@@ -192,7 +186,7 @@ def ejemplo_estadisticas():
     print("EJEMPLO 6: Estadísticas generales")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Estadísticas de actividades
@@ -206,23 +200,22 @@ def ejemplo_estadisticas():
                 SUM(moving_time) as tiempo_total,
                 SUM(total_elevation_gain) as desnivel_total
             FROM Activities
-            """
+            """,
         )
 
-        if stats['total_actividades'] > 0:
+        if stats["total_actividades"] > 0:
             print(f"Total actividades: {stats['total_actividades']}")
             print(f"Distancia total: {stats['distancia_total']/1000:.2f} km")
             print(f"Distancia promedio: {stats['distancia_promedio']/1000:.2f} km")
-            print(f"Tiempo total: {stats['tiempo_total']//3600:.0f}h {(stats['tiempo_total']%3600)//60:.0f}min")
+            print(
+                f"Tiempo total: {stats['tiempo_total']//3600:.0f}h {(stats['tiempo_total']%3600)//60:.0f}min"
+            )
             print(f"Desnivel total: {stats['desnivel_total']:.1f} m")
         else:
             print("No hay actividades en la base de datos")
 
         # Estadísticas de kudos
-        kudos_stats = db.fetch_one(
-            conn,
-            "SELECT COUNT(*) as total_kudos FROM Kudos"
-        )
+        kudos_stats = db.fetch_one(conn, "SELECT COUNT(*) as total_kudos FROM Kudos")
 
         print(f"\nTotal kudos recibidos: {kudos_stats['total_kudos']}")
 
@@ -233,7 +226,7 @@ def limpiar_datos_ejemplo():
     print("LIMPIEZA: Eliminando datos de ejemplo")
     print("=" * 60)
 
-    db_path = project_root / 'bd' / 'strava.sqlite'
+    db_path = project_root / "bd" / "strava.sqlite"
 
     with db.DatabaseConnection(str(db_path)) as conn:
         # Eliminar kudos primero (foreign key)
@@ -263,7 +256,7 @@ def main():
         # Preguntar si quiere limpiar los datos
         print("\n" + "=" * 80)
         response = input("\n¿Deseas eliminar los datos de ejemplo? (s/n): ")
-        if response.lower() == 's':
+        if response.lower() == "s":
             limpiar_datos_ejemplo()
         else:
             print("\nDatos de ejemplo conservados.")
@@ -276,6 +269,7 @@ def main():
     except Exception as e:
         print(f"\n[ERROR] Error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

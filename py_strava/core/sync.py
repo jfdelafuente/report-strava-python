@@ -5,24 +5,27 @@ Este módulo contiene la lógica de negocio para sincronizar actividades
 y kudos desde la API de Strava hacia la base de datos.
 """
 
-from datetime import datetime
 import csv
 import logging
-from typing import Optional, Dict, Any
+from datetime import datetime
+from typing import Any, Dict, Optional
+
 import pandas as pd
 
 from py_strava import config
-from py_strava.api import auth as stravaAuth
 from py_strava.api import activities as stravaActivities
+from py_strava.api import auth as stravaAuth
 from py_strava.utils import dates as stravaFechas
 
 # Intentar importar PostgreSQL, si no está disponible usar SQLite
 try:
     from py_strava.database import postgres as stravaBBDD
+
     DB_TYPE = "PostgreSQL"
     USE_POSTGRES = True
 except ImportError:
     from py_strava.database import sqlite as stravaBBDD
+
     DB_TYPE = "SQLite"
     USE_POSTGRES = False
 
@@ -36,12 +39,20 @@ DEFAULT_SQLITE_DB_PATH = str(config.SQLITE_DB_PATH)
 
 # Campos de actividades a extraer
 ACTIVITY_FIELDS = [
-    'id', 'name', 'start_date_local', 'type', 'distance',
-    'moving_time', 'elapsed_time', 'total_elevation_gain',
-    'end_latlng', 'kudos_count', 'external_id'
+    "id",
+    "name",
+    "start_date_local",
+    "type",
+    "distance",
+    "moving_time",
+    "elapsed_time",
+    "total_elevation_gain",
+    "end_latlng",
+    "kudos_count",
+    "external_id",
 ]
 
-KUDOS_FIELDS = ['firstname', 'lastname']
+KUDOS_FIELDS = ["firstname", "lastname"]
 
 
 def get_access_token(token_file: str) -> Optional[str]:
@@ -57,7 +68,7 @@ def get_access_token(token_file: str) -> Optional[str]:
     try:
         current_token = stravaAuth.getTokenFromFile(token_file)
         strava_tokens = stravaAuth.refreshToken(current_token, token_file)
-        access_token = strava_tokens['access_token']
+        access_token = strava_tokens["access_token"]
         logger.info("Token de acceso obtenido correctamente")
         return access_token
     except Exception as ex:
@@ -105,17 +116,17 @@ def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
         records = []
         for _, row in activities.iterrows():
             record = {
-                'id_activity': row['id'],
-                'name': row['name'],
-                'start_date_local': row['start_date_local'],
-                'type': row['type'],
-                'distance': row['distance'],
-                'moving_time': row['moving_time'],
-                'elapsed_time': row['elapsed_time'],
-                'total_elevation_gain': row['total_elevation_gain'],
-                'end_latlng': str(row['end_latlng']),
-                'kudos_count': row['kudos_count'],
-                'external_id': row['external_id']
+                "id_activity": row["id"],
+                "name": row["name"],
+                "start_date_local": row["start_date_local"],
+                "type": row["type"],
+                "distance": row["distance"],
+                "moving_time": row["moving_time"],
+                "elapsed_time": row["elapsed_time"],
+                "total_elevation_gain": row["total_elevation_gain"],
+                "end_latlng": str(row["end_latlng"]),
+                "kudos_count": row["kudos_count"],
+                "external_id": row["external_id"],
             }
             records.append(record)
 
@@ -133,17 +144,17 @@ def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
         for _, row in activities.iterrows():
             try:
                 record = {
-                    'id_activity': row['id'],
-                    'name': row['name'],
-                    'start_date_local': row['start_date_local'],
-                    'type': row['type'],
-                    'distance': row['distance'],
-                    'moving_time': row['moving_time'],
-                    'elapsed_time': row['elapsed_time'],
-                    'total_elevation_gain': row['total_elevation_gain'],
-                    'end_latlng': str(row['end_latlng']),
-                    'kudos_count': row['kudos_count'],
-                    'external_id': row['external_id']
+                    "id_activity": row["id"],
+                    "name": row["name"],
+                    "start_date_local": row["start_date_local"],
+                    "type": row["type"],
+                    "distance": row["distance"],
+                    "moving_time": row["moving_time"],
+                    "elapsed_time": row["elapsed_time"],
+                    "total_elevation_gain": row["total_elevation_gain"],
+                    "end_latlng": str(row["end_latlng"]),
+                    "kudos_count": row["kudos_count"],
+                    "external_id": row["external_id"],
                 }
                 stravaBBDD.insert(conn, "Activities", record)
                 count += 1
@@ -180,9 +191,9 @@ def load_kudos_to_db(conn, access_token: str, activity_ids: list) -> int:
             # Preparar registros de kudos para esta actividad
             for _, kudo_row in kudos.iterrows():
                 record = {
-                    'id_activity': activity_id,
-                    'firstname': kudo_row['firstname'],
-                    'lastname': kudo_row['lastname']
+                    "id_activity": activity_id,
+                    "firstname": kudo_row["firstname"],
+                    "lastname": kudo_row["lastname"],
                 }
                 all_kudos_records.append(record)
 
@@ -227,7 +238,7 @@ def update_sync_log(log_file: str, num_activities: int) -> None:
     """
     try:
         date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-        with open(log_file, 'a', newline='\n') as f:
+        with open(log_file, "a", newline="\n") as f:
             csv_writer = csv.writer(f)
             csv_writer.writerow([date, num_activities])
         logger.info(f"Log actualizado: {date} - {num_activities} actividades")
@@ -239,7 +250,7 @@ def run_sync(
     token_file: str = DEFAULT_TOKEN_JSON,
     activities_log: str = DEFAULT_ACTIVITIES_LOG,
     db_path: str = DEFAULT_SQLITE_DB_PATH,
-    since: Optional[int] = None
+    since: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
     Ejecuta el proceso de sincronización completo de actividades y kudos.
@@ -283,11 +294,7 @@ def run_sync(
 
     if activities.empty:
         logger.info("No hay actividades nuevas. Finalizando.")
-        return {
-            'activities': 0,
-            'kudos': 0,
-            'db_type': DB_TYPE
-        }
+        return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
 
     # Usar context manager para manejo automático de la conexión
     try:
@@ -301,14 +308,10 @@ def run_sync(
 
                 if num_loaded == 0:
                     logger.info("No se pudieron cargar actividades. Finalizando.")
-                    return {
-                        'activities': 0,
-                        'kudos': 0,
-                        'db_type': DB_TYPE
-                    }
+                    return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
 
                 # Obtener y cargar kudos
-                activity_ids = activities['id'].tolist()
+                activity_ids = activities["id"].tolist()
                 num_kudos = load_kudos_to_db(conn, access_token, activity_ids)
 
                 # La conexión se cierra y commitea automáticamente al salir del context manager
@@ -322,14 +325,10 @@ def run_sync(
 
                 if num_loaded == 0:
                     logger.info("No se pudieron cargar actividades. Finalizando.")
-                    return {
-                        'activities': 0,
-                        'kudos': 0,
-                        'db_type': DB_TYPE
-                    }
+                    return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
 
                 # Obtener y cargar kudos
-                activity_ids = activities['id'].tolist()
+                activity_ids = activities["id"].tolist()
                 num_kudos = load_kudos_to_db(conn, access_token, activity_ids)
 
                 # La conexión se cierra y commitea automáticamente al salir del context manager
@@ -344,8 +343,4 @@ def run_sync(
 
     logger.info("=== Sincronización completada exitosamente ===")
 
-    return {
-        'activities': num_loaded,
-        'kudos': num_kudos,
-        'db_type': DB_TYPE
-    }
+    return {"activities": num_loaded, "kudos": num_kudos, "db_type": DB_TYPE}

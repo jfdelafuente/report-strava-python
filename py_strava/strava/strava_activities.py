@@ -8,8 +8,8 @@ Este módulo proporciona funciones para:
 """
 
 import logging
-from typing import Optional, Dict
 from datetime import datetime
+from typing import Dict, Optional
 
 import pandas as pd
 import requests
@@ -25,13 +25,12 @@ MAX_RETRIES = 3
 
 class StravaAPIError(Exception):
     """Excepción personalizada para errores de la API de Strava."""
+
     pass
 
 
 def request_activities(
-    access_token: str,
-    start_date: Optional[int] = None,
-    verify_ssl: bool = True
+    access_token: str, start_date: Optional[int] = None, verify_ssl: bool = True
 ) -> pd.DataFrame:
     """
     Recupera las actividades del atleta desde la API de Strava.
@@ -55,6 +54,7 @@ def request_activities(
     # Suprimir advertencia de SSL si está deshabilitado
     if not verify_ssl:
         import urllib3
+
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         logger.warning("⚠️  Verificación SSL deshabilitada")
 
@@ -63,10 +63,10 @@ def request_activities(
     while True:
         # Configurar headers y parámetros
         headers = {"Authorization": f"Bearer {access_token}"}
-        params = {'per_page': 200, 'page': page}
+        params = {"per_page": 200, "page": page}
 
         if start_date:
-            params['after'] = start_date
+            params["after"] = start_date
 
         try:
             logger.debug(f"Llamando al API Strava - {endpoint} (página {page})")
@@ -76,7 +76,7 @@ def request_activities(
                 headers=headers,
                 params=params,
                 timeout=DEFAULT_TIMEOUT,
-                verify=verify_ssl
+                verify=verify_ssl,
             )
 
             # Verificar si la respuesta fue exitosa
@@ -105,7 +105,9 @@ def request_activities(
             ) from e
 
         except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code if hasattr(e.response, 'status_code') else 'unknown'
+            status_code = (
+                e.response.status_code if hasattr(e.response, "status_code") else "unknown"
+            )
             logger.error(f"Error HTTP {status_code} en {endpoint}: {e}")
 
             if status_code == 401:
@@ -131,11 +133,21 @@ def request_activities(
     # Convertir lista de actividades a DataFrame
     if not all_activities:
         logger.warning("No se encontraron actividades")
-        return pd.DataFrame(columns=[
-            "id", "name", "start_date_local", "type", "distance",
-            "moving_time", "elapsed_time", "total_elevation_gain",
-            "end_latlng", "kudos_count", "external_id"
-        ])
+        return pd.DataFrame(
+            columns=[
+                "id",
+                "name",
+                "start_date_local",
+                "type",
+                "distance",
+                "moving_time",
+                "elapsed_time",
+                "total_elevation_gain",
+                "end_latlng",
+                "kudos_count",
+                "external_id",
+            ]
+        )
 
     logger.info(f"Total de actividades obtenidas: {len(all_activities)}")
 
@@ -144,9 +156,17 @@ def request_activities(
 
     # Asegurar que las columnas importantes existan
     required_columns = [
-        "id", "name", "start_date_local", "type", "distance",
-        "moving_time", "elapsed_time", "total_elevation_gain",
-        "end_latlng", "kudos_count", "external_id"
+        "id",
+        "name",
+        "start_date_local",
+        "type",
+        "distance",
+        "moving_time",
+        "elapsed_time",
+        "total_elevation_gain",
+        "end_latlng",
+        "kudos_count",
+        "external_id",
     ]
 
     # Seleccionar solo las columnas que existen
@@ -156,11 +176,7 @@ def request_activities(
     return activities_df
 
 
-def request_kudos(
-    access_token: str,
-    activity_id: int,
-    verify_ssl: bool = True
-) -> pd.DataFrame:
+def request_kudos(access_token: str, activity_id: int, verify_ssl: bool = True) -> pd.DataFrame:
     """
     Recupera los kudos de una actividad específica desde la API de Strava.
 
@@ -183,13 +199,14 @@ def request_kudos(
     # Suprimir advertencia de SSL si está deshabilitado
     if not verify_ssl:
         import urllib3
+
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     logger.debug(f"Obteniendo kudos para actividad {activity_id}")
 
     while True:
         headers = {"Authorization": f"Bearer {access_token}"}
-        params = {'per_page': 30, 'page': page}
+        params = {"per_page": 30, "page": page}
 
         try:
             logger.debug(f"Llamando al API Strava - {endpoint} (página {page})")
@@ -199,7 +216,7 @@ def request_kudos(
                 headers=headers,
                 params=params,
                 timeout=DEFAULT_TIMEOUT,
-                verify=verify_ssl
+                verify=verify_ssl,
             )
 
             # Verificar si la respuesta fue exitosa
@@ -224,7 +241,9 @@ def request_kudos(
             ) from e
 
         except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code if hasattr(e.response, 'status_code') else 'unknown'
+            status_code = (
+                e.response.status_code if hasattr(e.response, "status_code") else "unknown"
+            )
 
             if status_code == 401:
                 raise StravaAPIError("Token de acceso inválido o expirado") from e
@@ -270,17 +289,23 @@ def get_activity_summary(activities_df: pd.DataFrame) -> Dict[str, any]:
     """
     if activities_df.empty:
         return {
-            'total_activities': 0,
-            'total_distance_km': 0,
-            'total_time_hours': 0,
-            'activities_by_type': {}
+            "total_activities": 0,
+            "total_distance_km": 0,
+            "total_time_hours": 0,
+            "activities_by_type": {},
         }
 
     summary = {
-        'total_activities': len(activities_df),
-        'total_distance_km': activities_df['distance'].sum() / 1000 if 'distance' in activities_df.columns else 0,
-        'total_time_hours': activities_df['moving_time'].sum() / 3600 if 'moving_time' in activities_df.columns else 0,
-        'activities_by_type': activities_df['type'].value_counts().to_dict() if 'type' in activities_df.columns else {}
+        "total_activities": len(activities_df),
+        "total_distance_km": activities_df["distance"].sum() / 1000
+        if "distance" in activities_df.columns
+        else 0,
+        "total_time_hours": activities_df["moving_time"].sum() / 3600
+        if "moving_time" in activities_df.columns
+        else 0,
+        "activities_by_type": activities_df["type"].value_counts().to_dict()
+        if "type" in activities_df.columns
+        else {},
     }
 
     return summary
@@ -297,7 +322,7 @@ def format_activity_date(date_str: str) -> str:
         Fecha formateada (ej: '27/11/2025 10:30')
     """
     try:
-        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        return dt.strftime('%d/%m/%Y %H:%M')
+        dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+        return dt.strftime("%d/%m/%Y %H:%M")
     except Exception:
         return date_str

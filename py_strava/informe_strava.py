@@ -21,10 +21,7 @@ import warnings
 from py_strava import config
 
 # Configuración de logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Emitir warning de deprecación
@@ -33,7 +30,7 @@ warnings.warn(
     "Para nuevos desarrollos, use py_strava.core.reports.run_report(). "
     "Este wrapper se mantendrá para compatibilidad pero podría ser eliminado en versiones futuras.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Importar la lógica desde el nuevo módulo core
@@ -44,7 +41,6 @@ STRAVA_BD = str(config.SQLITE_DB_PATH)
 STRAVA_DATA_CSV = str(config.STRAVA_REPORT_CSV)
 
 
-
 def main() -> None:
     """
     Función principal que ejecuta la generación del informe.
@@ -53,12 +49,9 @@ def main() -> None:
     pero delega toda la lógica a py_strava.core.reports.run_report()
     """
     try:
-        result = run_report(
-            db_path=STRAVA_BD,
-            output_csv=STRAVA_DATA_CSV
-        )
+        result = run_report(db_path=STRAVA_BD, output_csv=STRAVA_DATA_CSV)
 
-        if result['success']:
+        if result["success"]:
             logger.info(f"Informe generado exitosamente en: {result['output_file']}")
         else:
             logger.error("Error al generar el informe")

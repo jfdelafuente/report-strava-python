@@ -9,11 +9,11 @@ Este módulo proporciona una interfaz de alto nivel para SQLite con:
 - Configuración optimizada de SQLite
 """
 
-import sqlite3
 import logging
-from pathlib import Path
-from typing import Optional, Dict, List, Tuple, Any, Union
+import sqlite3
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Configurar logger para este módulo
 logger = logging.getLogger(__name__)
@@ -49,7 +49,9 @@ class DatabaseConnection:
 
             # Configuración optimizada de SQLite
             self.conn.execute("PRAGMA foreign_keys = ON")  # Habilitar foreign keys
-            self.conn.execute("PRAGMA journal_mode = WAL")  # Write-Ahead Logging para mejor concurrencia
+            self.conn.execute(
+                "PRAGMA journal_mode = WAL"
+            )  # Write-Ahead Logging para mejor concurrencia
 
             # Row factory para retornar diccionarios en lugar de tuplas
             self.conn.row_factory = sqlite3.Row
@@ -116,7 +118,7 @@ def execute(
     conn: sqlite3.Connection,
     sql_statement: str,
     params: Optional[Union[Tuple, List]] = None,
-    commit: bool = True
+    commit: bool = True,
 ) -> sqlite3.Cursor:
     """
     Ejecuta un statement SQL de forma segura.
@@ -163,11 +165,7 @@ def execute(
         raise
 
 
-def execute_many(
-    conn: sqlite3.Connection,
-    sql_statement: str,
-    params_list: List[Tuple]
-) -> int:
+def execute_many(conn: sqlite3.Connection, sql_statement: str, params_list: List[Tuple]) -> int:
     """
     Ejecuta múltiples inserts/updates de forma eficiente (batch).
 
@@ -210,9 +208,7 @@ def execute_many(
 
 
 def fetch(
-    conn: sqlite3.Connection,
-    sql_statement: str,
-    params: Optional[Union[Tuple, List]] = None
+    conn: sqlite3.Connection, sql_statement: str, params: Optional[Union[Tuple, List]] = None
 ) -> List[sqlite3.Row]:
     """
     Ejecuta una consulta SQL SELECT y retorna los resultados.
@@ -264,9 +260,7 @@ def fetch(
 
 
 def fetch_one(
-    conn: sqlite3.Connection,
-    sql_statement: str,
-    params: Optional[Union[Tuple, List]] = None
+    conn: sqlite3.Connection, sql_statement: str, params: Optional[Union[Tuple, List]] = None
 ) -> Optional[sqlite3.Row]:
     """
     Ejecuta una consulta SQL y retorna solo la primera fila.
@@ -308,10 +302,7 @@ def fetch_one(
 
 
 def insert(
-    conn: sqlite3.Connection,
-    table_name: str,
-    record: Dict[str, Any],
-    commit: bool = True
+    conn: sqlite3.Connection, table_name: str, record: Dict[str, Any], commit: bool = True
 ) -> int:
     """
     Inserta un registro en una tabla de forma segura.
@@ -333,8 +324,8 @@ def insert(
         ...         {'name': 'Running', 'distance': 5000}
         ...     )
     """
-    columns = ','.join(record.keys())
-    placeholders = ','.join(['?' for _ in record.keys()])
+    columns = ",".join(record.keys())
+    placeholders = ",".join(["?" for _ in record.keys()])
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
     params = tuple(record.values())
 
@@ -346,11 +337,7 @@ def insert(
     return row_id
 
 
-def insert_many(
-    conn: sqlite3.Connection,
-    table_name: str,
-    records: List[Dict[str, Any]]
-) -> int:
+def insert_many(conn: sqlite3.Connection, table_name: str, records: List[Dict[str, Any]]) -> int:
     """
     Inserta múltiples registros de forma eficiente (batch).
 
@@ -374,8 +361,8 @@ def insert_many(
         return 0
 
     # Usar las claves del primer registro para todas las inserciones
-    columns = ','.join(records[0].keys())
-    placeholders = ','.join(['?' for _ in records[0].keys()])
+    columns = ",".join(records[0].keys())
+    placeholders = ",".join(["?" for _ in records[0].keys()])
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
     # Convertir cada dict a tupla de valores
@@ -392,7 +379,7 @@ def update(
     table_name: str,
     updates: Dict[str, Any],
     where_clause: str,
-    where_params: Optional[Tuple] = None
+    where_params: Optional[Tuple] = None,
 ) -> int:
     """
     Actualiza registros en una tabla.
@@ -417,7 +404,7 @@ def update(
         ...         (12345,)
         ...     )
     """
-    set_clause = ','.join([f"{col} = ?" for col in updates.keys()])
+    set_clause = ",".join([f"{col} = ?" for col in updates.keys()])
     statement = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause}"
 
     params = list(updates.values())
@@ -460,8 +447,8 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
         ('Running', 5000, '2025-11-30')
         >>> commit(conn, stmt, params)
     """
-    columns = ','.join(record.keys())
-    placeholders = ','.join(['?' for _ in record.keys()])
+    columns = ",".join(record.keys())
+    placeholders = ",".join(["?" for _ in record.keys()])
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
     params = tuple(record.values())
 
@@ -471,7 +458,7 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
 def commit(
     conn: sqlite3.Connection,
     sql_statement: Union[str, Tuple[str, Tuple]],
-    params: Optional[Tuple] = None
+    params: Optional[Tuple] = None,
 ) -> None:
     """
     Ejecuta un statement SQL y realiza commit en la base de datos.

@@ -9,7 +9,7 @@ repos:
     rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3.8
+        language_version: python3.11
         args: [--line-length=100]
 
   # Import sorting
@@ -57,13 +57,6 @@ repos:
       - id: detect-private-key
       - id: mixed-line-ending
         args: [--fix=lf]
-
-  # Markdown linting
-  - repo: https://github.com/markdownlint/markdownlint
-    rev: v0.12.0
-    hooks:
-      - id: markdownlint
-        args: [--config=.markdownlint.json]
 
   # Python upgrade syntax
   - repo: https://github.com/asottile/pyupgrade

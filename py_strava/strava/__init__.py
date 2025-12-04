@@ -21,5 +21,5 @@ warnings.warn(
     "Los módulos se han reorganizado: api/, database/, utils/. "
     "Actualiza tus imports a la nueva estructura.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )

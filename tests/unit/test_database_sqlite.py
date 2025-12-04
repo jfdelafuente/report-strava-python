@@ -1,8 +1,9 @@
 """Tests unitarios para el módulo database/sqlite.py."""
 
-import pytest
 import sqlite3
 from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
@@ -119,24 +120,28 @@ class TestInsertOperations:
 
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT, age INTEGER)", commit=True)
 
-        record = {'id': 1, 'name': 'Alice', 'age': 30}
-        row_id = db.insert(test_conn, 'test', record)
+        record = {"id": 1, "name": "Alice", "age": 30}
+        row_id = db.insert(test_conn, "test", record)
 
         assert row_id > 0
 
         cursor = test_conn.execute("SELECT * FROM test WHERE id = 1")
         result = cursor.fetchone()
-        assert result['name'] == 'Alice'
-        assert result['age'] == 30
+        assert result["name"] == "Alice"
+        assert result["age"] == 30
 
     def test_insert_returns_lastrowid(self, test_conn):
         """Verificar que insert retorna el ID del registro insertado."""
         from py_strava.database import sqlite as db
 
-        db.execute(test_conn, "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)", commit=True)
+        db.execute(
+            test_conn,
+            "CREATE TABLE test (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)",
+            commit=True,
+        )
 
-        row_id_1 = db.insert(test_conn, 'test', {'name': 'First'})
-        row_id_2 = db.insert(test_conn, 'test', {'name': 'Second'})
+        row_id_1 = db.insert(test_conn, "test", {"name": "First"})
+        row_id_2 = db.insert(test_conn, "test", {"name": "Second"})
 
         assert row_id_2 > row_id_1
 
@@ -147,12 +152,12 @@ class TestInsertOperations:
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT)", commit=True)
 
         records = [
-            {'id': 1, 'name': 'Alice'},
-            {'id': 2, 'name': 'Bob'},
-            {'id': 3, 'name': 'Charlie'}
+            {"id": 1, "name": "Alice"},
+            {"id": 2, "name": "Bob"},
+            {"id": 3, "name": "Charlie"},
         ]
 
-        count = db.insert_many(test_conn, 'test', records)
+        count = db.insert_many(test_conn, "test", records)
         assert count == 3
 
         cursor = test_conn.execute("SELECT COUNT(*) FROM test")
@@ -164,7 +169,7 @@ class TestInsertOperations:
 
         db.execute(test_conn, "CREATE TABLE test (id INTEGER)", commit=True)
 
-        count = db.insert_many(test_conn, 'test', [])
+        count = db.insert_many(test_conn, "test", [])
         assert count == 0
 
 
@@ -181,8 +186,8 @@ class TestFetchOperations:
         results = db.fetch(test_conn, "SELECT * FROM test ORDER BY id")
 
         assert len(results) == 2
-        assert results[0]['name'] == 'Alice'
-        assert results[1]['name'] == 'Bob'
+        assert results[0]["name"] == "Alice"
+        assert results[1]["name"] == "Bob"
 
     def test_fetch_with_params(self, test_conn):
         """Verificar que fetch funciona con parámetros."""
@@ -205,7 +210,7 @@ class TestFetchOperations:
         result = db.fetch_one(test_conn, "SELECT * FROM test WHERE id = ?", (1,))
 
         assert result is not None
-        assert result['name'] == 'Alice'
+        assert result["name"] == "Alice"
 
     def test_fetch_one_no_result(self, test_conn):
         """Verificar que fetch_one retorna None si no hay resultados."""
@@ -228,18 +233,12 @@ class TestUpdateOperations:
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT, age INTEGER)", commit=True)
         db.execute(test_conn, "INSERT INTO test VALUES (1, 'Alice', 30)", commit=True)
 
-        rows = db.update(
-            test_conn,
-            'test',
-            {'age': 31},
-            "id = ?",
-            (1,)
-        )
+        rows = db.update(test_conn, "test", {"age": 31}, "id = ?", (1,))
 
         assert rows == 1
 
         result = db.fetch_one(test_conn, "SELECT age FROM test WHERE id = 1")
-        assert result['age'] == 31
+        assert result["age"] == 31
 
     def test_update_multiple_fields(self, test_conn):
         """Verificar que update puede actualizar múltiples campos."""
@@ -248,32 +247,24 @@ class TestUpdateOperations:
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT, age INTEGER)", commit=True)
         db.execute(test_conn, "INSERT INTO test VALUES (1, 'Alice', 30)", commit=True)
 
-        db.update(
-            test_conn,
-            'test',
-            {'name': 'Alicia', 'age': 35},
-            "id = ?",
-            (1,)
-        )
+        db.update(test_conn, "test", {"name": "Alicia", "age": 35}, "id = ?", (1,))
 
         result = db.fetch_one(test_conn, "SELECT * FROM test WHERE id = 1")
-        assert result['name'] == 'Alicia'
-        assert result['age'] == 35
+        assert result["name"] == "Alicia"
+        assert result["age"] == 35
 
     def test_update_returns_affected_rows(self, test_conn):
         """Verificar que update retorna el número de filas afectadas."""
         from py_strava.database import sqlite as db
 
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, status TEXT)", commit=True)
-        db.execute(test_conn, "INSERT INTO test VALUES (1, 'active'), (2, 'active'), (3, 'inactive')", commit=True)
-
-        rows = db.update(
+        db.execute(
             test_conn,
-            'test',
-            {'status': 'archived'},
-            "status = ?",
-            ('active',)
+            "INSERT INTO test VALUES (1, 'active'), (2, 'active'), (3, 'inactive')",
+            commit=True,
         )
+
+        rows = db.update(test_conn, "test", {"status": "archived"}, "status = ?", ("active",))
 
         assert rows == 2
 
@@ -292,7 +283,7 @@ class TestCreateTable:
             )
         """
 
-        db.create_table(test_conn, 'test', sql)
+        db.create_table(test_conn, "test", sql)
 
         # Verificar que la tabla existe
         cursor = test_conn.execute(
@@ -300,7 +291,7 @@ class TestCreateTable:
         )
         result = cursor.fetchone()
         assert result is not None
-        assert result[0] == 'test'
+        assert result[0] == "test"
 
     def test_create_table_if_not_exists(self, test_conn):
         """Verificar que create_table no falla si la tabla ya existe."""
@@ -309,8 +300,8 @@ class TestCreateTable:
         sql = "CREATE TABLE IF NOT EXISTS test (id INTEGER)"
 
         # Crear dos veces, no debe fallar
-        db.create_table(test_conn, 'test', sql)
-        db.create_table(test_conn, 'test', sql)  # No debe lanzar excepción
+        db.create_table(test_conn, "test", sql)
+        db.create_table(test_conn, "test", sql)  # No debe lanzar excepción
 
 
 class TestInsertStatement:
@@ -320,13 +311,13 @@ class TestInsertStatement:
         """Verificar que insert_statement genera SQL correcto."""
         from py_strava.database import sqlite as db
 
-        record = {'id': 1, 'name': 'Alice', 'age': 30}
-        stmt, params = db.insert_statement('users', record)
+        record = {"id": 1, "name": "Alice", "age": 30}
+        stmt, params = db.insert_statement("users", record)
 
-        assert 'INSERT INTO users' in stmt
-        assert 'VALUES' in stmt
-        assert stmt.count('?') == 3
-        assert params == (1, 'Alice', 30)
+        assert "INSERT INTO users" in stmt
+        assert "VALUES" in stmt
+        assert stmt.count("?") == 3
+        assert params == (1, "Alice", 30)
 
     def test_insert_statement_with_commit(self, test_conn):
         """Verificar que el statement generado funciona con commit."""
@@ -334,13 +325,13 @@ class TestInsertStatement:
 
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT)", commit=True)
 
-        record = {'id': 1, 'name': 'Test'}
-        stmt, params = db.insert_statement('test', record)
+        record = {"id": 1, "name": "Test"}
+        stmt, params = db.insert_statement("test", record)
 
         db.commit(test_conn, stmt, params)
 
         result = db.fetch_one(test_conn, "SELECT * FROM test WHERE id = 1")
-        assert result['name'] == 'Test'
+        assert result["name"] == "Test"
 
 
 class TestCommit:
@@ -355,7 +346,7 @@ class TestCommit:
         db.commit(test_conn, "INSERT INTO test VALUES (?)", ("hello",))
 
         result = db.fetch_one(test_conn, "SELECT value FROM test")
-        assert result['value'] == "hello"
+        assert result["value"] == "hello"
 
     def test_commit_with_tuple_format(self, test_conn):
         """Verificar que commit acepta tupla (stmt, params) de insert_statement."""
@@ -363,13 +354,13 @@ class TestCommit:
 
         db.execute(test_conn, "CREATE TABLE test (id INTEGER, name TEXT)", commit=True)
 
-        record = {'id': 1, 'name': 'Test'}
-        stmt_tuple = db.insert_statement('test', record)
+        record = {"id": 1, "name": "Test"}
+        stmt_tuple = db.insert_statement("test", record)
 
         db.commit(test_conn, stmt_tuple)
 
         result = db.fetch_one(test_conn, "SELECT * FROM test")
-        assert result['name'] == 'Test'
+        assert result["name"] == "Test"
 
 
 class TestErrorHandling:
@@ -387,7 +378,7 @@ class TestErrorHandling:
         from py_strava.database import sqlite as db
 
         with pytest.raises(sqlite3.Error):
-            db.insert(test_conn, 'nonexistent_table', {'id': 1})
+            db.insert(test_conn, "nonexistent_table", {"id": 1})
 
     def test_fetch_invalid_table_raises_error(self, test_conn):
         """Verificar que consultar tabla inexistente lanza excepción."""

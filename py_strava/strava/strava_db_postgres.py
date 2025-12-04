@@ -10,14 +10,15 @@ Este módulo proporciona una interfaz de alto nivel para PostgreSQL con:
 - API compatible con strava_db_sqlite para intercambiabilidad
 """
 
+import json
+import logging
+import os
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
-import json
-import os
-import logging
-from pathlib import Path
-from typing import Optional, Dict, List, Tuple, Any, Union
 
 # Configurar logger para este módulo
 logger = logging.getLogger(__name__)
@@ -36,29 +37,30 @@ def _load_credentials() -> Dict[str, Any]:
     Raises:
         FileNotFoundError: Si no hay archivo ni variables de entorno
     """
-    credentials_file = Path('./bd/postgres_credentials.json')
+    credentials_file = Path("./bd/postgres_credentials.json")
 
     # Intentar leer desde archivo JSON primero
     if credentials_file.exists():
-        with open(credentials_file, 'r') as f:
+        with open(credentials_file) as f:
             postgres_credentials = json.load(f)
             return {
-                'host': postgres_credentials['server'],
-                'database': postgres_credentials['database'],
-                'user': postgres_credentials['username'],
-                'password': postgres_credentials['password'],
-                'port': postgres_credentials['port']
+                "host": postgres_credentials["server"],
+                "database": postgres_credentials["database"],
+                "user": postgres_credentials["username"],
+                "password": postgres_credentials["password"],
+                "port": postgres_credentials["port"],
             }
     else:
         # Usar variables de entorno como respaldo
         try:
-            from py_strava.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+            from py_strava.config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+
             return {
-                'host': DB_HOST,
-                'database': DB_NAME,
-                'user': DB_USER,
-                'password': DB_PASSWORD,
-                'port': DB_PORT
+                "host": DB_HOST,
+                "database": DB_NAME,
+                "user": DB_USER,
+                "password": DB_PASSWORD,
+                "port": DB_PORT,
             }
         except ImportError:
             raise FileNotFoundError(
@@ -94,11 +96,11 @@ def initialize_pool(minconn: int = 1, maxconn: int = 10) -> None:
         _connection_pool = pool.SimpleConnectionPool(
             minconn,
             maxconn,
-            host=credentials['host'],
-            database=credentials['database'],
-            user=credentials['user'],
-            password=credentials['password'],
-            port=credentials['port']
+            host=credentials["host"],
+            database=credentials["database"],
+            user=credentials["user"],
+            password=credentials["password"],
+            port=credentials["port"],
         )
 
         logger.info(
@@ -225,7 +227,7 @@ def execute(
     conn: psycopg2.extensions.connection,
     sql_statement: str,
     params: Optional[Union[Tuple, List]] = None,
-    commit: bool = True
+    commit: bool = True,
 ) -> psycopg2.extensions.cursor:
     """
     Ejecuta un statement SQL de forma segura con parámetros preparados.
@@ -275,9 +277,7 @@ def execute(
 
 
 def execute_many(
-    conn: psycopg2.extensions.connection,
-    sql_statement: str,
-    params_list: List[Tuple]
+    conn: psycopg2.extensions.connection, sql_statement: str, params_list: List[Tuple]
 ) -> int:
     """
     Ejecuta múltiples inserts/updates de forma eficiente (batch).
@@ -324,7 +324,7 @@ def fetch(
     conn: psycopg2.extensions.connection,
     sql_statement: str,
     params: Optional[Union[Tuple, List]] = None,
-    as_dict: bool = False
+    as_dict: bool = False,
 ) -> List:
     """
     Ejecuta una consulta SQL SELECT y retorna los resultados.
@@ -385,7 +385,7 @@ def fetch_one(
     conn: psycopg2.extensions.connection,
     sql_statement: str,
     params: Optional[Union[Tuple, List]] = None,
-    as_dict: bool = False
+    as_dict: bool = False,
 ) -> Optional[Any]:
     """
     Ejecuta una consulta SQL y retorna solo la primera fila.
@@ -434,7 +434,7 @@ def insert(
     table_name: str,
     record: Dict[str, Any],
     returning: Optional[str] = None,
-    commit: bool = True
+    commit: bool = True,
 ) -> Optional[Any]:
     """
     Inserta un registro en una tabla de forma segura.
@@ -462,8 +462,8 @@ def insert(
         ...     )
         ...     print(f"ID generado: {activity_id}")
     """
-    columns = ','.join(record.keys())
-    placeholders = ','.join(['%s' for _ in record.keys()])
+    columns = ",".join(record.keys())
+    placeholders = ",".join(["%s" for _ in record.keys()])
 
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
@@ -487,9 +487,7 @@ def insert(
 
 
 def insert_many(
-    conn: psycopg2.extensions.connection,
-    table_name: str,
-    records: List[Dict[str, Any]]
+    conn: psycopg2.extensions.connection, table_name: str, records: List[Dict[str, Any]]
 ) -> int:
     """
     Inserta múltiples registros de forma eficiente (batch).
@@ -515,8 +513,8 @@ def insert_many(
         return 0
 
     # Usar las claves del primer registro para todas las inserciones
-    columns = ','.join(records[0].keys())
-    placeholders = ','.join(['%s' for _ in records[0].keys()])
+    columns = ",".join(records[0].keys())
+    placeholders = ",".join(["%s" for _ in records[0].keys()])
 
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
 
@@ -534,7 +532,7 @@ def update(
     table_name: str,
     updates: Dict[str, Any],
     where_clause: str,
-    where_params: Optional[Tuple] = None
+    where_params: Optional[Tuple] = None,
 ) -> int:
     """
     Actualiza registros en una tabla.
@@ -560,7 +558,7 @@ def update(
         ...     )
         ...     print(f"{rows} filas actualizadas")
     """
-    set_clause = ','.join([f"{col} = %s" for col in updates.keys()])
+    set_clause = ",".join([f"{col} = %s" for col in updates.keys()])
     statement = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause}"
 
     params = list(updates.values())
@@ -606,8 +604,8 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
         ('Running', 5000, '2025-11-30')
         >>> commit(conn, stmt, params)
     """
-    columns = ','.join(record.keys())
-    placeholders = ','.join(['%s' for _ in record.keys()])
+    columns = ",".join(record.keys())
+    placeholders = ",".join(["%s" for _ in record.keys()])
     statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
     params = tuple(record.values())
 
@@ -617,7 +615,7 @@ def insert_statement(table_name: str, record: Dict[str, Any]) -> Tuple[str, Tupl
 def commit(
     conn: psycopg2.extensions.connection,
     sql_statement: Union[str, Tuple[str, Tuple]],
-    params: Optional[Tuple] = None
+    params: Optional[Tuple] = None,
 ) -> None:
     """
     Ejecuta un statement SQL y realiza commit en la base de datos.

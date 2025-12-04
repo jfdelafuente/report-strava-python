@@ -1,5 +1,6 @@
-from py_strava.strava.strava_fechas import last_timestamp, timestamp_to_unix
 import unittest
+
+from py_strava.strava.strava_fechas import last_timestamp, timestamp_to_unix
 
 
 class TestFechas(unittest.TestCase):
@@ -13,5 +14,4 @@ class TestFechas(unittest.TestCase):
         self.assertEqual(timestamp_to_unix(last_timestamp(self.file)), 1585670295)
 
     def test_timestamp_to_unix_today(self):
-        self.assertEqual(timestamp_to_unix('2021-02-16T19:00:00Z'), 1613498400)
-
+        self.assertEqual(timestamp_to_unix("2021-02-16T19:00:00Z"), 1613498400)

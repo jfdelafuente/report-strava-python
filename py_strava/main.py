@@ -23,10 +23,7 @@ import warnings
 from py_strava import config
 
 # Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Emitir warning de deprecación
@@ -35,7 +32,7 @@ warnings.warn(
     "Para nuevos desarrollos, use py_strava.core.sync.run_sync(). "
     "Este wrapper se mantendrá para compatibilidad pero podría ser eliminado en versiones futuras.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Importar la lógica desde el nuevo módulo core
@@ -58,7 +55,7 @@ def main() -> None:
         result = run_sync(
             token_file=STRAVA_TOKEN_JSON,
             activities_log=STRAVA_ACTIVITIES_LOG,
-            db_path=SQLITE_DB_PATH
+            db_path=SQLITE_DB_PATH,
         )
         logger.info(f"Sincronización completada: {result}")
     except Exception as ex:

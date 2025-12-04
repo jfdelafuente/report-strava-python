@@ -5,4 +5,4 @@ Este módulo implementa una interfaz CLI moderna usando Click,
 proporcionando comandos intuitivos para interactuar con el proyecto.
 """
 
-__all__ = ['main']
+__all__ = ["main"]

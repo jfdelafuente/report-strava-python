@@ -8,8 +8,8 @@ Uso:
     python scripts/test_setup.py --verbose # Verificación con más detalles
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 # Añadir el directorio raíz del proyecto al path de Python
@@ -35,6 +35,7 @@ def test_imports():
     # Test 1: Import de config
     try:
         from py_strava import config
+
         print(f"{check_mark(True)} py_strava.config importado correctamente")
         tests.append(True)
     except Exception as e:
@@ -44,10 +45,11 @@ def test_imports():
     # Test 2: Import de strava_db_postgres (opcional si no hay psycopg2)
     try:
         from py_strava.strava import strava_db_postgres
+
         print(f"{check_mark(True)} py_strava.strava.strava_db_postgres importado correctamente")
         tests.append(True)
     except ImportError as e:
-        if 'psycopg2' in str(e):
+        if "psycopg2" in str(e):
             print(f"[INFO] strava_db_postgres (requiere psycopg2 - usa SQLite en su lugar)")
             tests.append(True)  # No falla el test
         else:
@@ -60,6 +62,7 @@ def test_imports():
     # Test 3: Import de strava_db_sqlite
     try:
         from py_strava.strava import strava_db_sqlite
+
         print(f"{check_mark(True)} py_strava.strava.strava_db_sqlite importado correctamente")
         tests.append(True)
     except Exception as e:
@@ -69,6 +72,7 @@ def test_imports():
     # Test 4: Import de strava_token
     try:
         from py_strava.strava import strava_token
+
         print(f"{check_mark(True)} py_strava.strava.strava_token importado correctamente")
         tests.append(True)
     except Exception as e:
@@ -78,6 +82,7 @@ def test_imports():
     # Test 5: Import de strava_activities
     try:
         from py_strava.strava import strava_activities
+
         print(f"{check_mark(True)} py_strava.strava.strava_activities importado correctamente")
         tests.append(True)
     except Exception as e:
@@ -87,6 +92,7 @@ def test_imports():
     # Test 6: Import de strava_fechas
     try:
         from py_strava.strava import strava_fechas
+
         print(f"{check_mark(True)} py_strava.strava.strava_fechas importado correctamente")
         tests.append(True)
     except Exception as e:
@@ -102,13 +108,7 @@ def test_directories():
 
     # Usar la raíz del proyecto, no el directorio actual
     base_dir = project_root
-    dirs_to_check = [
-        'py_strava',
-        'py_strava/strava',
-        'bd',
-        'data',
-        'json'
-    ]
+    dirs_to_check = ["py_strava", "py_strava/strava", "bd", "data", "json"]
 
     tests = []
     for dir_path in dirs_to_check:
@@ -127,15 +127,15 @@ def test_files():
     # Usar la raíz del proyecto, no el directorio actual
     base_dir = project_root
     files_to_check = [
-        ('py_strava/__init__.py', True),
-        ('py_strava/strava/__init__.py', True),
-        ('py_strava/config.py', True),
-        ('py_strava/main.py', True),
-        ('py_strava/informe_strava.py', True),
-        ('requirements.txt', True),
-        ('bd/postgres_credentials.json', False),  # Opcional
-        ('json/strava_tokens.json', False),  # Opcional
-        ('data/strava_activities.log', False),  # Opcional pero recomendado
+        ("py_strava/__init__.py", True),
+        ("py_strava/strava/__init__.py", True),
+        ("py_strava/config.py", True),
+        ("py_strava/main.py", True),
+        ("py_strava/informe_strava.py", True),
+        ("requirements.txt", True),
+        ("bd/postgres_credentials.json", False),  # Opcional
+        ("json/strava_tokens.json", False),  # Opcional
+        ("data/strava_activities.log", False),  # Opcional pero recomendado
     ]
 
     tests = []
@@ -149,7 +149,9 @@ def test_files():
                 tests.append(exists)
         else:
             status = "[OK]" if exists else "[INFO]"
-            print(f"{status}  {file_path} (opcional - {'encontrado' if exists else 'no encontrado'})")
+            print(
+                f"{status}  {file_path} (opcional - {'encontrado' if exists else 'no encontrado'})"
+            )
 
     return all(tests)
 
@@ -159,17 +161,10 @@ def test_dependencies():
     print("\n=== Verificando Dependencias ===\n")
 
     # Dependencias requeridas
-    required_deps = [
-        'pandas',
-        'numpy',
-        'requests',
-        'dateutil'
-    ]
+    required_deps = ["pandas", "numpy", "requests", "dateutil"]
 
     # Dependencias opcionales
-    optional_deps = [
-        'psycopg2'
-    ]
+    optional_deps = ["psycopg2"]
 
     tests = []
 
@@ -222,13 +217,13 @@ def main():
 
     # Parsear argumentos
     parser = argparse.ArgumentParser(
-        description='Verificar configuración del proyecto py-strava',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description="Verificar configuración del proyecto py-strava",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument('--quick', action='store_true',
-                       help='Verificación rápida (solo imports críticos)')
-    parser.add_argument('--verbose', action='store_true',
-                       help='Mostrar información detallada')
+    parser.add_argument(
+        "--quick", action="store_true", help="Verificación rápida (solo imports críticos)"
+    )
+    parser.add_argument("--verbose", action="store_true", help="Mostrar información detallada")
 
     args = parser.parse_args()
     VERBOSE = args.verbose

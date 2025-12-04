@@ -9,7 +9,7 @@ en la base de datos.
 import csv
 import logging
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 from py_strava import config
 from py_strava.database import sqlite as stravaBBDD
@@ -35,7 +35,7 @@ QUERY_KUDOS_ACTIVITIES = """
 """
 
 # Campos del CSV de salida
-CSV_FIELDNAMES = ['FIRST_NAME', 'LAST_NAME', 'TIPO', 'ACTIVIDAD', 'START_DATE']
+CSV_FIELDNAMES = ["FIRST_NAME", "LAST_NAME", "TIPO", "ACTIVIDAD", "START_DATE"]
 
 
 def connect_to_database(db_path: str) -> Optional[object]:
@@ -97,13 +97,8 @@ def export_to_csv(data: List[Tuple], output_file: str, fieldnames: List[str]) ->
         output_path = Path(output_file)
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_file, mode='w', newline='', encoding='utf-8') as file:
-            csv_writer = csv.writer(
-                file,
-                delimiter=',',
-                quotechar='"',
-                quoting=csv.QUOTE_MINIMAL
-            )
+        with open(output_file, mode="w", newline="", encoding="utf-8") as file:
+            csv_writer = csv.writer(file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow(fieldnames)
             csv_writer.writerows(data)
 
@@ -152,8 +147,7 @@ def generate_kudos_report(db_path: str, output_csv: str) -> bool:
 
 
 def run_report(
-    db_path: str = DEFAULT_DB_PATH,
-    output_csv: str = DEFAULT_OUTPUT_CSV
+    db_path: str = DEFAULT_DB_PATH, output_csv: str = DEFAULT_OUTPUT_CSV
 ) -> Dict[str, Any]:
     """
     Ejecuta la generación de informe de kudos.
@@ -170,8 +164,4 @@ def run_report(
     """
     success = generate_kudos_report(db_path, output_csv)
 
-    return {
-        'success': success,
-        'output_file': output_csv if success else None,
-        'db_path': db_path
-    }
+    return {"success": success, "output_file": output_csv if success else None, "db_path": db_path}

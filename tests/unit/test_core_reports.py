@@ -20,9 +20,9 @@ def test_db_with_data(tmp_path):
 
     # Insertar actividades de prueba
     activities = [
-        (1, 'Morning Run', '2025-12-01 07:00:00', 'Run'),
-        (2, 'Evening Ride', '2025-12-02 18:00:00', 'Ride'),
-        (3, 'Lunch Swim', '2025-12-03 12:00:00', 'Swim'),
+        (1, "Morning Run", "2025-12-01 07:00:00", "Run"),
+        (2, "Evening Ride", "2025-12-02 18:00:00", "Ride"),
+        (3, "Lunch Swim", "2025-12-03 12:00:00", "Swim"),
     ]
 
     for activity in activities:
@@ -30,15 +30,15 @@ def test_db_with_data(tmp_path):
             conn,
             "INSERT INTO Activities (id_activity, name, start_date_local, type) VALUES (?, ?, ?, ?)",
             activity,
-            commit=True
+            commit=True,
         )
 
     # Insertar kudos de prueba
     kudos = [
-        ('Alice', 'Smith', 1),
-        ('Bob', 'Jones', 1),
-        ('Charlie', 'Brown', 2),
-        ('Diana', 'Prince', 3),
+        ("Alice", "Smith", 1),
+        ("Bob", "Jones", 1),
+        ("Charlie", "Brown", 2),
+        ("Diana", "Prince", 3),
     ]
 
     for kudo in kudos:
@@ -46,7 +46,7 @@ def test_db_with_data(tmp_path):
             conn,
             "INSERT INTO Kudos (firstname, lastname, id_activity) VALUES (?, ?, ?)",
             kudo,
-            commit=True
+            commit=True,
         )
 
     conn.close()
@@ -66,10 +66,10 @@ class TestReportsModule:
         """Verificar que las constantes están definidas."""
         from py_strava.core import reports
 
-        assert hasattr(reports, 'DEFAULT_DB_PATH')
-        assert hasattr(reports, 'DEFAULT_OUTPUT_CSV')
-        assert hasattr(reports, 'QUERY_KUDOS_ACTIVITIES')
-        assert hasattr(reports, 'CSV_FIELDNAMES')
+        assert hasattr(reports, "DEFAULT_DB_PATH")
+        assert hasattr(reports, "DEFAULT_OUTPUT_CSV")
+        assert hasattr(reports, "QUERY_KUDOS_ACTIVITIES")
+        assert hasattr(reports, "CSV_FIELDNAMES")
 
 
 class TestDatabaseConnection:
@@ -169,7 +169,7 @@ class TestExportToCSV:
         from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
 
         output_file = tmp_path / "test_output.csv"
-        data = [('John', 'Doe', 'Run', 123, '2025-12-04')]
+        data = [("John", "Doe", "Run", 123, "2025-12-04")]
 
         success = export_to_csv(data, str(output_file), CSV_FIELDNAMES)
 
@@ -182,28 +182,28 @@ class TestExportToCSV:
 
         output_file = tmp_path / "test_output.csv"
         data = [
-            ('Alice', 'Smith', 'Run', 1, '2025-12-01'),
-            ('Bob', 'Jones', 'Ride', 2, '2025-12-02')
+            ("Alice", "Smith", "Run", 1, "2025-12-01"),
+            ("Bob", "Jones", "Ride", 2, "2025-12-02"),
         ]
 
         export_to_csv(data, str(output_file), CSV_FIELDNAMES)
 
         # Leer y verificar contenido
-        with open(output_file, 'r', encoding='utf-8') as f:
+        with open(output_file, encoding="utf-8") as f:
             reader = csv.reader(f)
             rows = list(reader)
 
         assert len(rows) == 3  # Header + 2 data rows
         assert rows[0] == CSV_FIELDNAMES
-        assert rows[1][0] == 'Alice'
-        assert rows[2][0] == 'Bob'
+        assert rows[1][0] == "Alice"
+        assert rows[2][0] == "Bob"
 
     def test_export_to_csv_creates_parent_directory(self, tmp_path):
         """Verificar que export_to_csv crea directorios padre si no existen."""
         from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
 
         output_file = tmp_path / "subdir" / "nested" / "output.csv"
-        data = [('Test', 'User', 'Run', 1, '2025-12-04')]
+        data = [("Test", "User", "Run", 1, "2025-12-04")]
 
         success = export_to_csv(data, str(output_file), CSV_FIELDNAMES)
 
@@ -229,8 +229,8 @@ class TestExportToCSV:
 
         output_file = tmp_path / "special.csv"
         data = [
-            ('José', 'García', 'Run', 1, '2025-12-04'),
-            ('François', "O'Brien", 'Ride', 2, '2025-12-04')
+            ("José", "García", "Run", 1, "2025-12-04"),
+            ("François", "O'Brien", "Ride", 2, "2025-12-04"),
         ]
 
         success = export_to_csv(data, str(output_file), CSV_FIELDNAMES)
@@ -238,11 +238,11 @@ class TestExportToCSV:
         assert success
 
         # Verificar que se guardó correctamente
-        with open(output_file, 'r', encoding='utf-8') as f:
+        with open(output_file, encoding="utf-8") as f:
             reader = csv.reader(f)
             rows = list(reader)
 
-        assert 'José' in rows[1][0]
+        assert "José" in rows[1][0]
         assert "O'Brien" in rows[2][1]
 
 
@@ -269,7 +269,7 @@ class TestGenerateKudosReport:
         generate_kudos_report(test_db_with_data, str(output_file))
 
         # Leer y verificar contenido
-        with open(output_file, 'r', encoding='utf-8') as f:
+        with open(output_file, encoding="utf-8") as f:
             reader = csv.reader(f)
             rows = list(reader)
 
@@ -301,13 +301,13 @@ class TestRunReport:
         result = run_report(test_db_with_data, str(output_file))
 
         assert isinstance(result, dict)
-        assert 'success' in result
-        assert 'output_file' in result
-        assert 'db_path' in result
+        assert "success" in result
+        assert "output_file" in result
+        assert "db_path" in result
 
-        assert result['success'] is True
-        assert result['output_file'] == str(output_file)
-        assert result['db_path'] == test_db_with_data
+        assert result["success"] is True
+        assert result["output_file"] == str(output_file)
+        assert result["db_path"] == test_db_with_data
 
     def test_run_report_creates_file(self, test_db_with_data, tmp_path):
         """Verificar que run_report crea el archivo de salida."""
@@ -317,7 +317,7 @@ class TestRunReport:
 
         result = run_report(test_db_with_data, str(output_file))
 
-        assert result['success']
+        assert result["success"]
         assert Path(output_file).exists()
 
     def test_run_report_default_parameters(self, test_db_with_data):
@@ -336,15 +336,15 @@ class TestRunReport:
         result = run_report(test_db_with_data, str(output_file))
 
         # Verificar keys esperadas
-        expected_keys = ['success', 'output_file', 'db_path']
+        expected_keys = ["success", "output_file", "db_path"]
         for key in expected_keys:
             assert key in result
 
         # Verificar tipos
-        assert isinstance(result['success'], bool)
-        if result['success']:
-            assert isinstance(result['output_file'], str)
-        assert isinstance(result['db_path'], str)
+        assert isinstance(result["success"], bool)
+        if result["success"]:
+            assert isinstance(result["output_file"], str)
+        assert isinstance(result["db_path"], str)
 
 
 class TestQueryDefinition:
@@ -355,21 +355,24 @@ class TestQueryDefinition:
         from py_strava.core.reports import QUERY_KUDOS_ACTIVITIES
 
         assert isinstance(QUERY_KUDOS_ACTIVITIES, str)
-        assert 'SELECT' in QUERY_KUDOS_ACTIVITIES
-        assert 'FROM Kudos' in QUERY_KUDOS_ACTIVITIES
-        assert 'JOIN Activities' in QUERY_KUDOS_ACTIVITIES or 'INNER JOIN Activities' in QUERY_KUDOS_ACTIVITIES
-        assert 'ORDER BY' in QUERY_KUDOS_ACTIVITIES
+        assert "SELECT" in QUERY_KUDOS_ACTIVITIES
+        assert "FROM Kudos" in QUERY_KUDOS_ACTIVITIES
+        assert (
+            "JOIN Activities" in QUERY_KUDOS_ACTIVITIES
+            or "INNER JOIN Activities" in QUERY_KUDOS_ACTIVITIES
+        )
+        assert "ORDER BY" in QUERY_KUDOS_ACTIVITIES
 
     def test_query_selects_correct_fields(self):
         """Verificar que la query selecciona los campos correctos."""
         from py_strava.core.reports import QUERY_KUDOS_ACTIVITIES
 
         # Debe seleccionar: firstname, lastname, type, id_activity, start_date_local
-        assert 'firstname' in QUERY_KUDOS_ACTIVITIES
-        assert 'lastname' in QUERY_KUDOS_ACTIVITIES
-        assert 'type' in QUERY_KUDOS_ACTIVITIES
-        assert 'id_activity' in QUERY_KUDOS_ACTIVITIES
-        assert 'start_date_local' in QUERY_KUDOS_ACTIVITIES
+        assert "firstname" in QUERY_KUDOS_ACTIVITIES
+        assert "lastname" in QUERY_KUDOS_ACTIVITIES
+        assert "type" in QUERY_KUDOS_ACTIVITIES
+        assert "id_activity" in QUERY_KUDOS_ACTIVITIES
+        assert "start_date_local" in QUERY_KUDOS_ACTIVITIES
 
 
 class TestCSVFieldnames:
@@ -386,7 +389,7 @@ class TestCSVFieldnames:
         """Verificar que CSV_FIELDNAMES tiene los campos correctos."""
         from py_strava.core.reports import CSV_FIELDNAMES
 
-        expected_fields = ['FIRST_NAME', 'LAST_NAME', 'TIPO', 'ACTIVIDAD', 'START_DATE']
+        expected_fields = ["FIRST_NAME", "LAST_NAME", "TIPO", "ACTIVIDAD", "START_DATE"]
 
         assert CSV_FIELDNAMES == expected_fields
 
@@ -400,7 +403,7 @@ class TestIntegration:
             connect_to_database,
             fetch_kudos_data,
             export_to_csv,
-            CSV_FIELDNAMES
+            CSV_FIELDNAMES,
         )
 
         output_file = tmp_path / "integration_test.csv"
@@ -420,9 +423,9 @@ class TestIntegration:
         # 4. Verificar archivo final
         assert output_file.exists()
 
-        with open(output_file, 'r', encoding='utf-8') as f:
+        with open(output_file, encoding="utf-8") as f:
             content = f.read()
-            assert 'FIRST_NAME' in content
+            assert "FIRST_NAME" in content
             assert len(content) > 0
 
         conn.close()

@@ -25,18 +25,18 @@ Ejemplo:
     >>> tokens = refreshToken(tokens, 'token.json')
 """
 
-import requests
 import json
-import time
-import os
 import logging
-from typing import Dict, Any, Optional
+import os
+import time
 from pathlib import Path
+from typing import Any, Dict, Optional
+
+import requests
 
 # Configuración de logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -44,17 +44,18 @@ logger = logging.getLogger(__name__)
 class StravaConfig:
     """Configuración centralizada para la API de Strava."""
 
-    BASE_URL = 'https://www.strava.com/oauth/token'
+    BASE_URL = "https://www.strava.com/oauth/token"
     TIMEOUT = 10  # segundos
     TOKEN_EXPIRY_MARGIN = 300  # Renovar 5 minutos antes de expirar
 
     # Intentar obtener credenciales de variables de entorno
-    CLIENT_ID = os.getenv('STRAVA_CLIENT_ID')
-    CLIENT_SECRET = os.getenv('STRAVA_CLIENT_SECRET')
+    CLIENT_ID = os.getenv("STRAVA_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("STRAVA_CLIENT_SECRET")
 
 
 class StravaAuthError(Exception):
     """Excepción personalizada para errores de autenticación de Strava."""
+
     pass
 
 
@@ -81,10 +82,7 @@ class StravaTokenManager:
     """
 
     def __init__(
-        self,
-        token_file: str,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None
+        self, token_file: str, client_id: Optional[str] = None, client_secret: Optional[str] = None
     ):
         """Inicializa el gestor de tokens."""
         self.token_file = Path(token_file)
@@ -123,12 +121,12 @@ class StravaTokenManager:
             response = requests.post(
                 url=StravaConfig.BASE_URL,
                 data={
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret,
-                    'code': code,
-                    'grant_type': 'authorization_code'
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                    "code": code,
+                    "grant_type": "authorization_code",
                 },
-                timeout=StravaConfig.TIMEOUT
+                timeout=StravaConfig.TIMEOUT,
             )
             response.raise_for_status()
 
@@ -183,12 +181,10 @@ class StravaTokenManager:
             json.JSONDecodeError: Si el archivo no es JSON válido
         """
         if not self.token_file.exists():
-            raise FileNotFoundError(
-                f"Archivo de tokens no encontrado: {self.token_file}"
-            )
+            raise FileNotFoundError(f"Archivo de tokens no encontrado: {self.token_file}")
 
         try:
-            with open(self.token_file, 'r') as f:
+            with open(self.token_file) as f:
                 tokens = json.load(f)
             logger.debug(f"Tokens cargados desde {self.token_file}")
             return tokens
@@ -206,7 +202,7 @@ class StravaTokenManager:
         # Crear directorio si no existe
         self.token_file.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(self.token_file, 'w') as f:
+        with open(self.token_file, "w") as f:
             json.dump(tokens, f, indent=2)
         logger.debug(f"Tokens guardados en {self.token_file}")
 
@@ -224,25 +220,21 @@ class StravaTokenManager:
             StravaAuthError: Si la renovación falla
         """
         if not self.client_id or not self.client_secret:
-            raise StravaAuthError(
-                "Credenciales no configuradas para renovar token"
-            )
+            raise StravaAuthError("Credenciales no configuradas para renovar token")
 
-        if 'refresh_token' not in current_tokens:
-            raise StravaAuthError(
-                "Token actual no contiene refresh_token"
-            )
+        if "refresh_token" not in current_tokens:
+            raise StravaAuthError("Token actual no contiene refresh_token")
 
         try:
             response = requests.post(
                 url=StravaConfig.BASE_URL,
                 data={
-                    'client_id': self.client_id,
-                    'client_secret': self.client_secret,
-                    'grant_type': 'refresh_token',
-                    'refresh_token': current_tokens['refresh_token']
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                    "grant_type": "refresh_token",
+                    "refresh_token": current_tokens["refresh_token"],
                 },
-                timeout=StravaConfig.TIMEOUT
+                timeout=StravaConfig.TIMEOUT,
             )
             response.raise_for_status()
 
@@ -274,18 +266,17 @@ class StravaTokenManager:
         Returns:
             True si el token ha expirado o expirará pronto
         """
-        if 'expires_at' not in tokens:
+        if "expires_at" not in tokens:
             logger.warning("Token no contiene campo expires_at")
             return True
 
         # Considerar expirado si falta menos del margen configurado
-        time_until_expiry = tokens['expires_at'] - time.time()
+        time_until_expiry = tokens["expires_at"] - time.time()
         is_expired = time_until_expiry < StravaConfig.TOKEN_EXPIRY_MARGIN
 
         if is_expired:
             logger.debug(
-                f"Token expirado o próximo a expirar "
-                f"(faltan {time_until_expiry:.0f} segundos)"
+                f"Token expirado o próximo a expirar " f"(faltan {time_until_expiry:.0f} segundos)"
             )
 
         return is_expired
@@ -301,7 +292,7 @@ class StravaTokenManager:
         Returns:
             True si la respuesta es válida
         """
-        required_fields = ['access_token', 'refresh_token', 'expires_at']
+        required_fields = ["access_token", "refresh_token", "expires_at"]
         is_valid = all(field in tokens for field in required_fields)
 
         if not is_valid:
@@ -317,10 +308,9 @@ class StravaTokenManager:
 # Estas funciones mantienen la API original para evitar romper código existente
 # Se recomienda migrar a la clase StravaTokenManager para nuevos desarrollos
 
+
 def makeStravaAuth(
-    code: str,
-    client_id: Optional[int] = None,
-    client_secret: Optional[str] = None
+    code: str, client_id: Optional[int] = None, client_secret: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Realiza autenticación OAuth con Strava (función legacy).
@@ -352,12 +342,12 @@ def makeStravaAuth(
         response = requests.post(
             url=StravaConfig.BASE_URL,
             data={
-                'client_id': cid,
-                'client_secret': csecret,
-                'code': code,
-                'grant_type': 'authorization_code'
+                "client_id": cid,
+                "client_secret": csecret,
+                "code": code,
+                "grant_type": "authorization_code",
             },
-            timeout=StravaConfig.TIMEOUT
+            timeout=StravaConfig.TIMEOUT,
         )
         response.raise_for_status()
         return response.json()
@@ -385,11 +375,11 @@ def saveTokenFile(strava_tokens: Dict[str, Any], file: str) -> None:
         # Crear directorio si no existe
         Path(file).parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file, 'w') as outfile:
+        with open(file, "w") as outfile:
             json.dump(strava_tokens, outfile, indent=2)
         logger.debug(f"Tokens guardados en {file}")
 
-    except IOError as e:
+    except OSError as e:
         logger.error(f"Error al guardar tokens: {e}")
         raise
 
@@ -430,7 +420,7 @@ def refreshToken(
     strava_tokens: Dict[str, Any],
     file: str,
     client_id: Optional[int] = None,
-    client_secret: Optional[str] = None
+    client_secret: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Renueva el token si ha expirado (función legacy).
@@ -451,27 +441,25 @@ def refreshToken(
         StravaAuthError: Si la renovación falla
     """
     # Verificar si el token ha expirado
-    if strava_tokens.get('expires_at', 0) < time.time():
+    if strava_tokens.get("expires_at", 0) < time.time():
         logger.info("Token expirado, renovando...")
 
         cid = client_id or StravaConfig.CLIENT_ID
         csecret = client_secret or StravaConfig.CLIENT_SECRET
 
         if not cid or not csecret:
-            raise StravaAuthError(
-                "Credenciales no configuradas para renovar token"
-            )
+            raise StravaAuthError("Credenciales no configuradas para renovar token")
 
         try:
             response = requests.post(
                 url=StravaConfig.BASE_URL,
                 data={
-                    'client_id': cid,
-                    'client_secret': csecret,
-                    'grant_type': 'refresh_token',
-                    'refresh_token': strava_tokens['refresh_token']
+                    "client_id": cid,
+                    "client_secret": csecret,
+                    "grant_type": "refresh_token",
+                    "refresh_token": strava_tokens["refresh_token"],
                 },
-                timeout=StravaConfig.TIMEOUT
+                timeout=StravaConfig.TIMEOUT,
             )
             response.raise_for_status()
 
@@ -511,10 +499,10 @@ def openTokenFile(file: str) -> Dict[str, Any]:
 
         # Imprimir versión censurada para seguridad
         safe_data = data.copy()
-        if 'access_token' in safe_data:
-            safe_data['access_token'] = safe_data['access_token'][:10] + '...'
-        if 'refresh_token' in safe_data:
-            safe_data['refresh_token'] = safe_data['refresh_token'][:10] + '...'
+        if "access_token" in safe_data:
+            safe_data["access_token"] = safe_data["access_token"][:10] + "..."
+        if "refresh_token" in safe_data:
+            safe_data["refresh_token"] = safe_data["refresh_token"][:10] + "..."
 
         print(f"Tokens cargados desde {file}:")
         print(json.dumps(safe_data, indent=2))
@@ -545,7 +533,7 @@ if __name__ == "__main__":
     # Ejemplo 1: Usando la clase (recomendado para nuevos desarrollos)
     print("=== Ejemplo 1: Usando StravaTokenManager ===")
     try:
-        manager = StravaTokenManager('tokens.json')
+        manager = StravaTokenManager("tokens.json")
 
         # Primera vez: autenticar con código
         # manager.authenticate('codigo_de_autorizacion_aqui')
@@ -562,8 +550,8 @@ if __name__ == "__main__":
     # Ejemplo 2: Usando funciones legacy (compatibilidad con código existente)
     print("\n=== Ejemplo 2: Usando funciones legacy ===")
     try:
-        tokens = getTokenFromFile('tokens.json')
-        tokens = refreshToken(tokens, 'tokens.json')
+        tokens = getTokenFromFile("tokens.json")
+        tokens = refreshToken(tokens, "tokens.json")
         print(f"Access token: {tokens['access_token'][:20]}...")
 
     except FileNotFoundError:

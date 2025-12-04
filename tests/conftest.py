@@ -1,9 +1,10 @@
 """Configuración de pytest y fixtures compartidos."""
 
-import pytest
-from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
@@ -15,7 +16,7 @@ def project_root():
 @pytest.fixture
 def sample_db_path(tmp_path):
     """Retorna path a BD temporal para tests."""
-    return tmp_path / 'test_strava.sqlite'
+    return tmp_path / "test_strava.sqlite"
 
 
 @pytest.fixture
@@ -45,8 +46,8 @@ def temp_bd_dir(tmp_path):
 @pytest.fixture
 def test_database(tmp_path):
     """Crea una base de datos SQLite temporal con esquema completo."""
-    from py_strava.database import sqlite as db
     from py_strava.database import schema
+    from py_strava.database import sqlite as db
 
     db_path = tmp_path / "test.sqlite"
     conn = db.sql_connection(str(db_path))
@@ -64,40 +65,35 @@ def test_database(tmp_path):
 def sample_activity_data():
     """Retorna datos de actividad de ejemplo para tests."""
     return {
-        'id_activity': 12345,
-        'name': 'Morning Run',
-        'start_date_local': '2025-12-04 07:00:00',
-        'type': 'Run',
-        'distance': 5000.0,
-        'moving_time': 1800,
-        'elapsed_time': 2000,
-        'total_elevation_gain': 50.0,
-        'kudos_count': 5
+        "id_activity": 12345,
+        "name": "Morning Run",
+        "start_date_local": "2025-12-04 07:00:00",
+        "type": "Run",
+        "distance": 5000.0,
+        "moving_time": 1800,
+        "elapsed_time": 2000,
+        "total_elevation_gain": 50.0,
+        "kudos_count": 5,
     }
 
 
 @pytest.fixture
 def sample_kudo_data():
     """Retorna datos de kudo de ejemplo para tests."""
-    return {
-        'firstname': 'John',
-        'lastname': 'Doe',
-        'resource_state': '2',
-        'id_activity': 12345
-    }
+    return {"firstname": "John", "lastname": "Doe", "resource_state": "2", "id_activity": 12345}
 
 
 @pytest.fixture
 def sample_token_data():
     """Retorna datos de token de ejemplo para tests."""
     return {
-        'token_type': 'Bearer',
-        'expires_at': 1733500000,
-        'expires_in': 21600,
-        'refresh_token': 'test_refresh_token',
-        'access_token': 'test_access_token',
-        'client_id': 'test_client_id',
-        'client_secret': 'test_client_secret'
+        "token_type": "Bearer",
+        "expires_at": 1733500000,
+        "expires_in": 21600,
+        "refresh_token": "test_refresh_token",
+        "access_token": "test_access_token",
+        "client_id": "test_client_id",
+        "client_secret": "test_client_secret",
     }
 
 
@@ -106,31 +102,31 @@ def mock_strava_activities():
     """Retorna lista de actividades mock de Strava API."""
     return [
         {
-            'id': 1,
-            'name': 'Morning Run',
-            'start_date_local': '2025-12-01T07:00:00Z',
-            'type': 'Run',
-            'distance': 5000.0,
-            'moving_time': 1800,
-            'elapsed_time': 2000,
-            'total_elevation_gain': 50.0,
-            'end_latlng': [40.7128, -74.0060],
-            'kudos_count': 3,
-            'external_id': 'ext_001'
+            "id": 1,
+            "name": "Morning Run",
+            "start_date_local": "2025-12-01T07:00:00Z",
+            "type": "Run",
+            "distance": 5000.0,
+            "moving_time": 1800,
+            "elapsed_time": 2000,
+            "total_elevation_gain": 50.0,
+            "end_latlng": [40.7128, -74.0060],
+            "kudos_count": 3,
+            "external_id": "ext_001",
         },
         {
-            'id': 2,
-            'name': 'Evening Ride',
-            'start_date_local': '2025-12-02T18:00:00Z',
-            'type': 'Ride',
-            'distance': 20000.0,
-            'moving_time': 3600,
-            'elapsed_time': 4000,
-            'total_elevation_gain': 200.0,
-            'end_latlng': [40.7580, -73.9855],
-            'kudos_count': 7,
-            'external_id': 'ext_002'
-        }
+            "id": 2,
+            "name": "Evening Ride",
+            "start_date_local": "2025-12-02T18:00:00Z",
+            "type": "Ride",
+            "distance": 20000.0,
+            "moving_time": 3600,
+            "elapsed_time": 4000,
+            "total_elevation_gain": 200.0,
+            "end_latlng": [40.7580, -73.9855],
+            "kudos_count": 7,
+            "external_id": "ext_002",
+        },
     ]
 
 

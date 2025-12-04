@@ -1,20 +1,20 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Script de diagnóstico para el entorno de testing.
 
 Verifica que todas las dependencias y archivos necesarios estén correctamente configurados.
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
 
 # Configurar encoding para Windows
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 
 def verificar_python():
@@ -41,17 +41,13 @@ def verificar_dependencias():
     print("2. VERIFICACIÓN DE DEPENDENCIAS")
     print("=" * 60)
 
-    dependencias = {
-        'pytest': 'pytest',
-        'pytest-cov': 'pytest_cov',
-        'pytest-mock': 'pytest_mock'
-    }
+    dependencias = {"pytest": "pytest", "pytest-cov": "pytest_cov", "pytest-mock": "pytest_mock"}
 
     todas_ok = True
     for nombre, modulo in dependencias.items():
         try:
             mod = __import__(modulo)
-            version = getattr(mod, '__version__', 'desconocida')
+            version = getattr(mod, "__version__", "desconocida")
             print(f"✅ {nombre}: v{version}")
         except ImportError:
             print(f"❌ {nombre}: NO INSTALADO")
@@ -68,15 +64,7 @@ def verificar_estructura_directorios():
     print("=" * 60)
 
     base_dir = Path(__file__).parent.parent
-    directorios = [
-        'tests',
-        'tests/unit',
-        'data/test',
-        'json/test',
-        'bd',
-        'py_strava',
-        'docs/dev'
-    ]
+    directorios = ["tests", "tests/unit", "data/test", "json/test", "bd", "py_strava", "docs/dev"]
 
     todas_ok = True
     for directorio in directorios:
@@ -98,10 +86,7 @@ def verificar_archivos_datos():
     print("=" * 60)
 
     base_dir = Path(__file__).parent.parent
-    archivos = [
-        'data/test/strava_activities_all_fields.csv',
-        'json/test/strava_tokens.json'
-    ]
+    archivos = ["data/test/strava_activities_all_fields.csv", "json/test/strava_tokens.json"]
 
     todas_ok = True
     for archivo in archivos:
@@ -124,13 +109,13 @@ def verificar_archivos_test():
     print("=" * 60)
 
     base_dir = Path(__file__).parent.parent
-    test_dir = base_dir / 'tests' / 'unit'
+    test_dir = base_dir / "tests" / "unit"
 
     if not test_dir.exists():
         print(f"❌ Directorio {test_dir} no existe")
         return False
 
-    archivos_test = list(test_dir.glob('test_*.py'))
+    archivos_test = list(test_dir.glob("test_*.py"))
     print(f"Encontrados {len(archivos_test)} archivos de test:")
 
     for archivo in sorted(archivos_test):
@@ -147,11 +132,11 @@ def verificar_pytest_ini():
     print("=" * 60)
 
     base_dir = Path(__file__).parent.parent
-    pytest_ini = base_dir / 'pytest.ini'
+    pytest_ini = base_dir / "pytest.ini"
 
     if pytest_ini.exists():
         print(f"✅ pytest.ini encontrado")
-        with open(pytest_ini, 'r', encoding='utf-8') as f:
+        with open(pytest_ini, encoding="utf-8") as f:
             contenido = f.read()
             print("\nContenido:")
             print("-" * 40)
@@ -180,10 +165,10 @@ def ejecutar_test_simple():
     try:
         # Ejecutar un test simple
         resultado = subprocess.run(
-            [sys.executable, '-m', 'pytest', 'tests/unit/test_version.py', '-v'],
+            [sys.executable, "-m", "pytest", "tests/unit/test_version.py", "-v"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         if resultado.returncode == 0:
@@ -246,5 +231,5 @@ def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

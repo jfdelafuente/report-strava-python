@@ -14,5 +14,5 @@ warnings.warn(
     "El módulo 'legacy' está deprecado y será eliminado en la versión 3.0.0. "
     "Por favor, actualiza tus imports para usar los nuevos módulos.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )

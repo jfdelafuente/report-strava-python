@@ -58,6 +58,7 @@ STRAVA_API_SETTINGS = "https://www.strava.com/settings/api"
 # FUNCIONES AUXILIARES
 # =============================================================================
 
+
 def print_header(title: str) -> None:
     """Imprime un encabezado formateado."""
     print("\n" + "=" * 70)
@@ -119,7 +120,7 @@ def confirm_action(message: str) -> bool:
         True si el usuario confirma, False en caso contrario
     """
     response = get_user_input(f"{message} (s/n)", "s").lower()
-    return response in ['s', 'si', 'yes', 'y']
+    return response in ["s", "si", "yes", "y"]
 
 
 def format_timestamp(timestamp: int) -> str:
@@ -150,26 +151,27 @@ def display_token_info(tokens: Dict[str, Any]) -> None:
     print(f"   Token Type:     {tokens.get('token_type', 'N/A')}")
 
     # Mostrar access_token censurado
-    access_token = tokens.get('access_token', '')
+    access_token = tokens.get("access_token", "")
     if access_token:
         print(f"   Access Token:   {access_token[:15]}...{access_token[-10:]}")
 
     # Mostrar refresh_token censurado
-    refresh_token = tokens.get('refresh_token', '')
+    refresh_token = tokens.get("refresh_token", "")
     if refresh_token:
         print(f"   Refresh Token:  {refresh_token[:15]}...{refresh_token[-10:]}")
 
     # Mostrar expiración
-    expires_at = tokens.get('expires_at', 0)
+    expires_at = tokens.get("expires_at", 0)
     if expires_at:
         formatted_date = format_timestamp(expires_at)
         import time
+
         remaining = expires_at - time.time()
         hours = remaining / 3600
         print(f"   Expira:         {formatted_date} ({hours:.1f} horas)")
 
     # Información del atleta (si está disponible)
-    athlete = tokens.get('athlete', {})
+    athlete = tokens.get("athlete", {})
     if athlete:
         print(f"\n👤 Información del atleta:")
         print(f"   Nombre:         {athlete.get('firstname', '')} {athlete.get('lastname', '')}")
@@ -179,6 +181,7 @@ def display_token_info(tokens: Dict[str, Any]) -> None:
 # =============================================================================
 # FLUJOS PRINCIPALES
 # =============================================================================
+
 
 def get_credentials() -> tuple[str, str]:
     """
@@ -192,8 +195,8 @@ def get_credentials() -> tuple[str, str]:
     print(f"   {STRAVA_API_SETTINGS}\n")
 
     # Intentar obtener de variables de entorno
-    client_id = os.getenv('STRAVA_CLIENT_ID')
-    client_secret = os.getenv('STRAVA_CLIENT_SECRET')
+    client_id = os.getenv("STRAVA_CLIENT_ID")
+    client_secret = os.getenv("STRAVA_CLIENT_SECRET")
 
     if client_id and client_secret:
         print_info("Credenciales encontradas en variables de entorno")
@@ -306,9 +309,7 @@ def authenticate_and_save(client_id: str, client_secret: str, token_file: Path) 
 
     try:
         manager = StravaTokenManager(
-            token_file=str(token_file),
-            client_id=client_id,
-            client_secret=client_secret
+            token_file=str(token_file), client_id=client_id, client_secret=client_secret
         )
 
         print_info("Contactando con Strava API...")
@@ -352,13 +353,19 @@ def verify_token(token_file: Path) -> Dict[str, Any]:
 
     try:
         # Cargar tokens
-        with open(token_file, 'r') as f:
+        with open(token_file) as f:
             tokens = json.load(f)
 
         print_success(f"Archivo encontrado: {token_file}")
 
         # Verificar campos requeridos
-        required_fields = ['access_token', 'refresh_token', 'expires_at', 'client_id', 'client_secret']
+        required_fields = [
+            "access_token",
+            "refresh_token",
+            "expires_at",
+            "client_id",
+            "client_secret",
+        ]
         missing_fields = [f for f in required_fields if f not in tokens]
 
         if missing_fields:
@@ -369,7 +376,8 @@ def verify_token(token_file: Path) -> Dict[str, Any]:
 
         # Verificar expiración
         import time
-        expires_at = tokens.get('expires_at', 0)
+
+        expires_at = tokens.get("expires_at", 0)
         current_time = time.time()
 
         if expires_at < current_time:
@@ -415,12 +423,12 @@ def refresh_token(token_file: Path) -> Dict[str, Any]:
 
     try:
         # Cargar tokens actuales
-        with open(token_file, 'r') as f:
+        with open(token_file) as f:
             current_tokens = json.load(f)
 
         # Obtener credenciales del archivo
-        client_id = current_tokens.get('client_id')
-        client_secret = current_tokens.get('client_secret')
+        client_id = current_tokens.get("client_id")
+        client_secret = current_tokens.get("client_secret")
 
         if not client_id or not client_secret:
             print_error("Credenciales no encontradas en el archivo de tokens")
@@ -429,9 +437,7 @@ def refresh_token(token_file: Path) -> Dict[str, Any]:
 
         # Crear manager y renovar
         manager = StravaTokenManager(
-            token_file=str(token_file),
-            client_id=client_id,
-            client_secret=client_secret
+            token_file=str(token_file), client_id=client_id, client_secret=client_secret
         )
 
         print_info("Renovando token...")
@@ -505,6 +511,7 @@ def interactive_mode(token_file: Path) -> Dict[str, Any]:
 # FUNCIÓN PRINCIPAL
 # =============================================================================
 
+
 def main():
     """Función principal del script."""
     parser = argparse.ArgumentParser(
@@ -519,26 +526,20 @@ Ejemplos de uso:
 
 Para más información sobre la API de Strava:
   https://developers.strava.com/docs/authentication/
-        """
+        """,
     )
 
     parser.add_argument(
-        '--verify',
-        action='store_true',
-        help='Verificar token existente sin modificar'
+        "--verify", action="store_true", help="Verificar token existente sin modificar"
     )
 
-    parser.add_argument(
-        '--refresh',
-        action='store_true',
-        help='Forzar renovación del token'
-    )
+    parser.add_argument("--refresh", action="store_true", help="Forzar renovación del token")
 
     parser.add_argument(
-        '--token',
+        "--token",
         type=str,
         default=str(DEFAULT_TOKEN_FILE),
-        help=f'Ruta del archivo de tokens (default: {DEFAULT_TOKEN_FILE})'
+        help=f"Ruta del archivo de tokens (default: {DEFAULT_TOKEN_FILE})",
     )
 
     args = parser.parse_args()
@@ -561,6 +562,7 @@ Para más información sobre la API de Strava:
     except Exception as e:
         print_error(f"Error fatal: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
