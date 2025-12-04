@@ -10,6 +10,7 @@ Este script muestra cómo:
 
 import sys
 from pathlib import Path
+
 # Usar nuevos imports reorganizados
 from py_strava.database import sqlite as db
 
