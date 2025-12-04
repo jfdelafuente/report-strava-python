@@ -321,6 +321,10 @@ tests/fixtures/*.sqlite
 tests/temp/
 tests/output/
 
+# Test data files (legacy tests)
+data/test/
+json/test/
+
 # Coverage reports
 .coverage
 htmlcov/
