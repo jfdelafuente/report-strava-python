@@ -1,0 +1,4 @@
+-r base.txt
+
+# PostgreSQL support (optional)
+psycopg2-binary>=2.9.9

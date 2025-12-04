@@ -254,14 +254,66 @@ Puedes ejecutar:
 
 ---
 
-## Próximos Pasos Recomendados
+## Errores Comunes Adicionales
 
-1. ✅ Configura tus credenciales de PostgreSQL
-2. ✅ Configura tu token de Strava en `json/strava_tokens.json`
-3. ✅ Ejecuta `python -m py_strava.main` para sincronizar
-4. ✅ Genera informes con `python -m py_strava.informe_strava`
+### 7. ❌ Archivo de Log No Existe
+
+**Problema:** Error al intentar leer o escribir en `data/strava_activities.log`.
+
+**Síntomas:**
+```
+FileNotFoundError: [Errno 2] No such file or directory: 'data/strava_activities.log'
+```
+
+**Causa:** El archivo de log no se crea automáticamente hasta la primera sincronización.
+
+**Soluciones:**
+
+**Opción 1 - Dejar que se cree automáticamente (Recomendado):**
+
+```bash
+# El archivo se crea automáticamente en la primera sincronización
+strava sync
+```
+
+**Opción 2 - Crear manualmente:**
+
+```bash
+# Linux/Mac
+touch data/strava_activities.log
+
+# Windows (CMD)
+type nul > data\strava_activities.log
+
+# Windows (PowerShell)
+New-Item -Path data\strava_activities.log -ItemType File -Force
+```
+
+**Función del archivo:**
+
+- Registra todas las actividades sincronizadas
+- Permite sincronización incremental (solo actividades nuevas)
+- Formato: una línea por actividad con ID y fecha
+
+**Ejemplo de contenido:**
+
+```text
+12345678 - 2025-11-26T08:00:00Z
+12345679 - 2025-11-25T17:30:00Z
+12345680 - 2025-11-24T09:15:00Z
+```
 
 ---
 
-**Fecha de corrección:** 26 de noviembre de 2025
+## Próximos Pasos Recomendados
+
+1. ✅ Crea los directorios necesarios: `mkdir -p bd data json`
+2. ✅ Configura tus credenciales de PostgreSQL (opcional)
+3. ✅ Configura tu token de Strava en `json/strava_tokens.json`
+4. ✅ Ejecuta `strava sync` para sincronizar (crea el log automáticamente)
+5. ✅ Genera informes con `strava report`
+
+---
+
+**Fecha de corrección:** 3 de diciembre de 2025
 **Todos los errores identificados han sido resueltos** ✅

@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-strava"
+version = "2.2.0"
+description = "Sincroniza y analiza actividades de Strava"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+keywords = ["strava", "api", "sync", "activities", "sports", "analytics"]
+authors = [
+    {name = "Strava Analytics Team"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "requests>=2.31.0",
+    "python-dateutil>=2.8.2",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.7.0",
+    "black>=23.12.0",
+    "flake8>=6.1.0",
+]
+postgres = [
+    "psycopg2-binary>=2.9.9",
+]
+
+[project.urls]
+Homepage = "https://github.com/tu-usuario/py-strava"
+Documentation = "https://github.com/tu-usuario/py-strava/docs"
+Repository = "https://github.com/tu-usuario/py-strava"
+"Bug Tracker" = "https://github.com/tu-usuario/py-strava/issues"
+
+[project.scripts]
+strava = "py_strava.cli.main:main"
+
+[tool.setuptools]
+packages = ["py_strava"]
+
+[tool.setuptools.package-data]
+py_strava = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
