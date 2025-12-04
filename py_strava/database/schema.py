@@ -1,6 +1,4 @@
-"""
-Definiciones de esquemas SQL para la base de datos de Strava.
-"""
+"""Definiciones de esquemas SQL para la base de datos de Strava."""
 
 CREATE_TABLE_ACTIVITIES = """
     CREATE TABLE IF NOT EXISTS Activities (
