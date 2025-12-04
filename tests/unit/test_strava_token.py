@@ -5,15 +5,17 @@ NOTA: Este es un módulo legacy que será reemplazado.
 Los tests usan mocks para evitar llamadas reales a la API de Strava.
 """
 
-import pytest
 import json
 import time
 from pathlib import Path
 from unittest.mock import Mock
+
+import pytest
+
 from py_strava.strava.strava_token_1 import (
-    refreshToken,
     getTokenFromFile,
     openTokenFile,
+    refreshToken,
     saveTokenFile,
 )
 
