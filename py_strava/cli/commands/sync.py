@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 )
 @click.option("--force", is_flag=True, help="Forzar sincronización completa (ignorar última sync)")
 def sync(since, token_file, activities_log, db_path, force):
-    """
+    r"""
     Sincronizar actividades de Strava con la base de datos.
 
     \b

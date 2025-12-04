@@ -31,7 +31,7 @@ __version__ = "2.2.0"
     "--quiet", "-q", is_flag=True, help="Modo silencioso (equivalente a --log-level ERROR)"
 )
 def cli(log_level, verbose, quiet):
-    """
+    r"""
     Strava CLI - Sincroniza y analiza actividades de Strava.
 
     \b

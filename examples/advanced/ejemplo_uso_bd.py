@@ -10,15 +10,14 @@ Este script muestra cómo:
 
 import sys
 from pathlib import Path
+# Usar nuevos imports reorganizados
+from py_strava.database import sqlite as db
 
 # Añadir el directorio raíz del proyecto al path de Python
 # Esto permite importar py_strava desde cualquier ubicación
 # Nota: Estamos en examples/advanced/, así que subimos dos niveles para llegar a la raíz
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
-
-# Usar nuevos imports reorganizados
-from py_strava.database import sqlite as db
 
 
 def ejemplo_insertar_actividad():

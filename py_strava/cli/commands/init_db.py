@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @click.option("--reset", is_flag=True, help="[PELIGRO] Eliminar y recrear todas las tablas")
 @click.option("--verify", is_flag=True, help="Solo verificar que las tablas existen (no crear)")
 def init_db(db_path, reset, verify):
-    """
+    r"""
     Inicializar la base de datos SQLite.
 
     \b
