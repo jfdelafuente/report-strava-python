@@ -151,7 +151,7 @@ def test_directories():
 
     # Usar la raíz del proyecto, no el directorio actual
     base_dir = project_root
-    dirs_to_check = ["py_strava", "py_strava/strava", "bd", "data", "json"]
+    dirs_to_check = ["py_strava", "bd", "data", "json"]
 
     tests = []
     for dir_path in dirs_to_check:
@@ -171,10 +171,10 @@ def test_files():
     base_dir = project_root
     files_to_check = [
         ("py_strava/__init__.py", True),
-        ("py_strava/strava/__init__.py", True),
         ("py_strava/config.py", True),
         ("py_strava/main.py", True),
         ("py_strava/informe_strava.py", True),
+        ("py_strava/cli/main.py", True),
         ("requirements.txt", True),
         ("bd/postgres_credentials.json", False),  # Opcional
         ("json/strava_tokens.json", False),  # Opcional
@@ -345,14 +345,17 @@ def main():
             )
         )
         print(f"\n{colored('📝 Próximos pasos:', Colors.CYAN + Colors.BOLD)}")
-        print(f"  {colored('1️⃣ ', Colors.BLUE)} Sincronizar actividades:")
-        print(f"     {colored('python -m py_strava.main', Colors.WHITE)}")
-        print(f"\n  {colored('2️⃣ ', Colors.BLUE)} Generar informe:")
-        print(f"     {colored('python -m py_strava.informe_strava', Colors.WHITE)}")
-        print(f"\n  {colored('3️⃣ ', Colors.BLUE)} Inicializar base de datos (si no está hecha):")
-        print(f"     {colored('python scripts/init_database.py', Colors.WHITE)}")
-        print(f"\n  {colored('4️⃣ ', Colors.BLUE)} Ver ejemplos de uso:")
-        print(f"     {colored('python examples/advanced/ejemplo_uso_bd.py', Colors.WHITE)}")
+        print(f"  {colored('1️⃣ ', Colors.BLUE)} Verificar versión:")
+        print(f"     {colored('strava --version', Colors.WHITE)}")
+        print(f"\n  {colored('2️⃣ ', Colors.BLUE)} Inicializar base de datos (si no está hecha):")
+        print(f"     {colored('strava init-db', Colors.WHITE)}")
+        print(f"\n  {colored('3️⃣ ', Colors.BLUE)} Sincronizar actividades:")
+        print(f"     {colored('strava sync', Colors.WHITE)}")
+        print(f"\n  {colored('4️⃣ ', Colors.BLUE)} Generar informe:")
+        print(f"     {colored('strava report', Colors.WHITE)}")
+        print(f"\n  {colored('💡', Colors.YELLOW)} Ver ayuda de cualquier comando:")
+        print(f"     {colored('strava --help', Colors.WHITE)}")
+        print(f"     {colored('strava sync --help', Colors.WHITE)}")
     else:
         print(
             colored(
