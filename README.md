@@ -671,7 +671,7 @@ python -m py_strava.main
 
 ### Estructura del código
 
-Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles de la arquitectura.
+Consulta [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) para detalles de la arquitectura.
 
 **Código principal**:
 
@@ -698,26 +698,19 @@ Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para det
 
 ### Próximas mejoras planificadas
 
-Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para el plan completo.
-
 **Completado** ✅:
 
 - [x] **Fase 1**: Reorganización de estructura y documentación
 - [x] **Fase 2**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
 - [x] **Fase 3**: CLI profesional con Click: `strava sync`, `strava report`, `strava init-db`
-
-**En progreso** 🔄:
-
-- [ ] **Fase 4**: Limpieza final y release v2.2.0
+- [x] **Fase 4**: Limpieza final y release v2.2.0
+- [x] **Fase 5**: Eliminación de módulos deprecados y release v3.0.0
 
 **Futuro** 🔵:
 
-- [ ] Tests unitarios con pytest
-- [ ] CI/CD con GitLab CI
-- [ ] Validación de tipos con mypy
-- [ ] Linting automático (black, flake8)
 - [ ] Publicación en PyPI
 - [ ] Dashboard web interactivo
+- [ ] Análisis avanzados de rendimiento
 
 ## Contribuir
 
@@ -757,19 +750,30 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 🚀 **Activo** - El proyecto está en desarrollo activo y se aceptan contribuciones.
 
-**Última actualización**: 3 de diciembre de 2025
-**Versión**: 2.2.0 (CLI Profesional - Fases 1-3 completadas)
-**Estado**: En Fase 4 (Limpieza y Release)
+**Última actualización**: 6 de diciembre de 2025
+**Versión**: 3.0.0 (Arquitectura Modular Consolidada - Breaking Changes)
+**Estado**: Todas las fases de reestructuración completadas ✅
 
 ### Roadmap
 
 - ✅ **Fase 1 (Completada)**: Reorganización de estructura y documentación
 - ✅ **Fase 2 (Completada)**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
 - ✅ **Fase 3 (Completada)**: CLI profesional con Click
-- 🔄 **Fase 4 (En Progreso)**: Limpieza y release v2.2.0
-- 🔵 **Futuro**: PyPI, tests, CI/CD
+- ✅ **Fase 4 (Completada)**: Limpieza y release v2.2.0
+- ✅ **Fase 5 (Completada)**: Eliminación de módulos deprecados (`py_strava.strava.*`) y release v3.0.0
+- 🔵 **Futuro**: PyPI, Dashboard web, Análisis avanzados
 
-Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) y [CHANGELOG.md](CHANGELOG.md) para detalles completos.
+### v3.0.0 Breaking Changes
+
+⚠️ **IMPORTANTE**: La versión 3.0.0 incluye cambios incompatibles con versiones anteriores:
+
+- **Eliminado módulo deprecado** `py_strava.strava.*` (~2,500 líneas de código)
+- **Eliminada sincronización de kudos individuales** (campo `kudos_count` aún disponible en Activities)
+- **Requerida migración de imports** de `py_strava.strava.*` a `py_strava.api.*`, `database.*`, `utils.*`
+
+📖 **Guía de migración completa**: [docs/dev/GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md)
+
+Ver [CHANGELOG.md](CHANGELOG.md) para detalles completos del historial de cambios.
 
 ---
 
@@ -778,10 +782,14 @@ Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) y [CHANGELOG.md](CHANGELOG.md) 
 ### Documentación del Proyecto
 
 - [CHANGELOG.md](CHANGELOG.md) - Historial de cambios oficial
-- [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) - Arquitectura del proyecto v2.2.0
-- [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) - Plan de migración por fases
-- [docs/user/](docs/user/) - Guías para usuarios
-- [docs/dev/](docs/dev/) - Documentación técnica
+- [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) - Arquitectura del proyecto v3.0.0
+- [docs/dev/GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md) - **Guía de migración a v3.0.0** ⚠️
+- [docs/dev/ANALISIS_ELIMINACION_MODULO_STRAVA.md](docs/dev/ANALISIS_ELIMINACION_MODULO_STRAVA.md) - Análisis técnico de eliminación
+- [docs/user/GET_TOKEN.md](docs/user/GET_TOKEN.md) - Cómo obtener tokens de Strava
+- [docs/user/INICIO_RAPIDO.md](docs/user/INICIO_RAPIDO.md) - Guía de inicio rápido
+- [docs/user/SOLUCION_ERRORES.md](docs/user/SOLUCION_ERRORES.md) - Solución de problemas
+- [docs/database/INIT_DATABASE.md](docs/database/INIT_DATABASE.md) - Inicialización de base de datos
+- [docs/dev/](docs/dev/) - Documentación técnica completa
 - [docs/database/](docs/database/) - Documentación de base de datos
 
 ### Changelogs por Fase
