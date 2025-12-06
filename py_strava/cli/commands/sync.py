@@ -48,9 +48,8 @@ def sync(since, token_file, activities_log, db_path, force):
     Este comando:
     1. Obtiene un token de acceso válido (renovándolo si es necesario)
     2. Descarga actividades nuevas desde Strava API
-    3. Almacena las actividades en la base de datos
-    4. Descarga y almacena los kudos de cada actividad
-    5. Registra la fecha de sincronización
+    3. Almacena las actividades en la base de datos (incluye kudos_count)
+    4. Registra la fecha de sincronización
 
     \b
     Ejemplos:
@@ -100,9 +99,9 @@ def sync(since, token_file, activities_log, db_path, force):
         click.secho("[SUCCESS] Sincronización completada", fg="green", bold=True)
         click.echo("=" * 60)
         click.echo(f'  Actividades sincronizadas: {result["activities"]}')
-        click.echo(f'  Kudos procesados:          {result["kudos"]}')
         click.echo(f'  Base de datos:             {result["db_type"]}')
         click.echo("=" * 60)
+        click.echo("\n  💡 Tip: kudos_count está incluido en cada actividad")
 
         if result["activities"] == 0:
             click.secho("\n[INFO] No hay actividades nuevas para sincronizar", fg="yellow")
