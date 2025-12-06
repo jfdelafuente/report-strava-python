@@ -1,5 +1,4 @@
-"""
-Módulo para interactuar con la API de Strava y obtener actividades y kudos.
+"""Módulo para interactuar con la API de Strava y obtener actividades y kudos.
 
 Este módulo proporciona funciones para:
 - Obtener actividades del atleta autenticado
@@ -9,7 +8,7 @@ Este módulo proporciona funciones para:
 
 import logging
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import pandas as pd
 import requests
@@ -32,8 +31,7 @@ class StravaAPIError(Exception):
 def request_activities(
     access_token: str, start_date: Optional[int] = None, verify_ssl: bool = True
 ) -> pd.DataFrame:
-    """
-    Recupera las actividades del atleta desde la API de Strava.
+    """Recupera las actividades del atleta desde la API de Strava.
 
     Args:
         access_token: Token de acceso a la API de Strava
@@ -177,8 +175,7 @@ def request_activities(
 
 
 def request_kudos(access_token: str, activity_id: int, verify_ssl: bool = True) -> pd.DataFrame:
-    """
-    Recupera los kudos de una actividad específica desde la API de Strava.
+    """Recupera los kudos de una actividad específica desde la API de Strava.
 
     Args:
         access_token: Token de acceso a la API de Strava
@@ -277,9 +274,8 @@ def request_kudos(access_token: str, activity_id: int, verify_ssl: bool = True) 
     return kudos_df[existing_columns]
 
 
-def get_activity_summary(activities_df: pd.DataFrame) -> Dict[str, any]:
-    """
-    Genera un resumen estadístico de las actividades.
+def get_activity_summary(activities_df: pd.DataFrame) -> Dict[str, Any]:
+    """Genera un resumen estadístico de las actividades.
 
     Args:
         activities_df: DataFrame con las actividades
@@ -297,23 +293,26 @@ def get_activity_summary(activities_df: pd.DataFrame) -> Dict[str, any]:
 
     summary = {
         "total_activities": len(activities_df),
-        "total_distance_km": activities_df["distance"].sum() / 1000
-        if "distance" in activities_df.columns
-        else 0,
-        "total_time_hours": activities_df["moving_time"].sum() / 3600
-        if "moving_time" in activities_df.columns
-        else 0,
-        "activities_by_type": activities_df["type"].value_counts().to_dict()
-        if "type" in activities_df.columns
-        else {},
+        "total_distance_km": (
+            activities_df["distance"].sum() / 1000 if "distance" in activities_df.columns else 0
+        ),
+        "total_time_hours": (
+            activities_df["moving_time"].sum() / 3600
+            if "moving_time" in activities_df.columns
+            else 0
+        ),
+        "activities_by_type": (
+            activities_df["type"].value_counts().to_dict()
+            if "type" in activities_df.columns
+            else {}
+        ),
     }
 
     return summary
 
 
 def format_activity_date(date_str: str) -> str:
-    """
-    Formatea una fecha de actividad de Strava a formato legible.
+    """Formatea una fecha de actividad de Strava a formato legible.
 
     Args:
         date_str: Fecha en formato ISO 8601 (ej: '2025-11-27T10:30:00Z')

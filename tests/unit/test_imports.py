@@ -1,5 +1,4 @@
 """Tests para verificar que todos los módulos se importan correctamente."""
-import pytest
 
 
 def test_import_cli():
