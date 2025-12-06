@@ -1,5 +1,4 @@
 """Test para verificar la versión del proyecto."""
-import pytest
 
 
 def test_cli_version():
