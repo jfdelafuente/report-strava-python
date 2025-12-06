@@ -15,21 +15,21 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 
 ## Características
 
-✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
-✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
-✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
-✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
-✅ **Base de datos**: Soporta SQLite y PostgreSQL
-✅ **Informes CSV**: Exporta datos para análisis externo
-✅ **Logging completo**: Sistema de logs estructurado para debugging
-✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
-✅ **Configuración flexible**: Variables de entorno y archivos de configuración
-✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
+- ✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
+- ✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
+- ✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
+- ✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
+- ✅ **Base de datos**: Soporta SQLite y PostgreSQL
+- ✅ **Informes CSV**: Exporta datos para análisis externo
+- ✅ **Logging completo**: Sistema de logs estructurado para debugging
+- ✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
+- ✅ **Configuración flexible**: Variables de entorno y archivos de configuración
+- ✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
 
 ## Estructura del Proyecto
 
 ```plaintext
-py-strava/
+report-strava-python/
 ├── py_strava/              # Código fuente principal
 │   ├── api/                # Comunicación con Strava API
 │   │   ├── auth.py         # Autenticación OAuth2
@@ -98,7 +98,7 @@ py-strava/
 
 ```bash
 git clone https://gitlab.com/josefcodelafuente/py-strava.git
-cd py-strava
+cd report-strava-python
 ```
 
 ### 2. Crear entorno virtual
