@@ -1,26 +1,40 @@
-# py-strava
+# report-strava-python
 
 Aplicación Python profesional para sincronizar y analizar actividades de Strava con base de datos local.
 
 ## Descripción
 
-**py-strava** es una herramienta CLI profesional que permite:
+**report-strava-python** es una herramienta CLI profesional que permite:
 
 - Sincronizar automáticamente tus actividades de Strava con una base de datos local
 - Almacenar información detallada de actividades y kudos recibidos
+- **Visualizar datos en un dashboard web interactivo** (NUEVO)
 - Generar informes y exportar datos a formato CSV
 - Mantener un historial completo de tus entrenamientos
 
 El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas de desarrollo en Python, incluyendo CLI profesional con Click, logging estructurado, arquitectura modular, manejo robusto de errores y documentación completa.
 
+### Vista Rápida del Dashboard
+
+```text
+🏃 Strava Dashboard
+├── 📊 Resumen General (Métricas clave)
+├── 📈 Análisis (Gráficos de tendencias)
+├── 🏆 Top Actividades (Rankings)
+├── 👍 Kudos (Análisis de comunidad)
+└── 📋 Datos (Tablas exportables)
+```
+
 ## Características
 
 - ✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
+- ✅ **Dashboard Web Interactivo**: Visualiza tus actividades con Streamlit (NUEVO)
 - ✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
 - ✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
 - ✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
 - ✅ **Base de datos**: Soporta SQLite y PostgreSQL
 - ✅ **Informes CSV**: Exporta datos para análisis externo
+- ✅ **Gráficos Interactivos**: Análisis visual con Plotly
 - ✅ **Logging completo**: Sistema de logs estructurado para debugging
 - ✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
 - ✅ **Configuración flexible**: Variables de entorno y archivos de configuración
@@ -39,6 +53,10 @@ report-strava-python/
 │   │   ├── sqlite.py       # Driver SQLite
 │   │   ├── postgres.py     # Driver PostgreSQL
 │   │   └── schema.py       # Esquemas SQL
+│   │
+│   ├── dashboard/          # 🆕 Dashboard web interactivo
+│   │   ├── __init__.py     # Módulo dashboard
+│   │   └── data_loader.py  # Carga y procesamiento de datos
 │   │
 │   ├── utils/              # Utilidades generales
 │   │   └── dates.py        # Manejo de fechas
@@ -60,14 +78,21 @@ report-strava-python/
 │   └── config.py           # Configuración global
 │
 ├── scripts/                # Scripts de utilidad
-│   ├── init_database.py
-│   ├── ejemplo_uso_bd.py
-│   └── test_setup.py
+│   ├── 01_get_token.py     # Obtención de tokens OAuth2
+│   ├── init_database.py    # Inicialización de BD
+│   ├── test_setup.py       # Verificación de instalación
+│   └── check_dashboard_ready.py  # 🆕 Verificar dashboard
 │
 ├── docs/                   # Documentación
 │   ├── user/               # Guías de usuario
+│   │   ├── DASHBOARD.md    # 🆕 Guía del dashboard
+│   │   ├── GET_TOKEN.md
+│   │   └── INICIO_RAPIDO.md
 │   ├── dev/                # Documentación técnica
 │   └── database/           # Docs de BD
+│
+├── .streamlit/             # 🆕 Configuración Streamlit
+│   └── config.toml         # Tema y configuración del dashboard
 │
 ├── requirements/           # Dependencias por entorno
 │   ├── base.txt
@@ -78,8 +103,14 @@ report-strava-python/
 ├── bd/                     # Base de datos SQLite
 ├── json/                   # Configuración (tokens)
 │
+├── dashboard_app.py        # 🆕 Aplicación principal del dashboard
+├── run_dashboard.bat       # 🆕 Lanzador Windows
+├── run_dashboard.sh        # 🆕 Lanzador Linux/Mac
+├── DASHBOARD_README.md     # 🆕 Documentación del dashboard
+│
 ├── setup.py                # Instalación pip
 ├── pyproject.toml          # Configuración moderna
+├── requirements.txt        # Dependencias principales
 ├── CHANGELOG.md            # Historial de cambios
 └── README.md               # Este archivo
 ```
@@ -345,10 +376,13 @@ strava init-db
 # 2. Sincronizar actividades
 strava sync
 
-# 3. Generar reporte
+# 3. Ver dashboard interactivo (RECOMENDADO)
+streamlit run dashboard_app.py
+
+# O generar reporte CSV
 strava report
 
-# 4. Ver resultados
+# 4. Ver resultados CSV
 cat data/strava_data.csv
 ```
 
@@ -460,6 +494,45 @@ strava init-db --reset
 # BD personalizada
 strava init-db --db-path ./custom.db
 ```
+
+### Dashboard Web Interactivo
+
+Visualiza tus actividades de Strava en un dashboard web profesional con gráficos interactivos.
+
+**Iniciar el dashboard**:
+
+```bash
+streamlit run dashboard_app.py
+```
+
+El dashboard se abrirá automáticamente en tu navegador en [http://localhost:8501](http://localhost:8501)
+
+**Características del Dashboard**:
+
+- 📊 **Resumen General**: Métricas clave (actividades, distancia, tiempo, desnivel, kudos)
+- 📈 **Análisis**: Gráficos de distribución por tipo, evolución temporal, días de la semana
+- 🏆 **Top Actividades**: Ranking por distancia, kudos o desnivel
+- 👍 **Análisis de Kudos**: Leaderboard de seguidores más activos
+- 📋 **Datos Tabulares**: Exploración y descarga de datos en CSV
+- 🔍 **Filtros**: Por tipo de actividad y rango de fechas
+- 🎨 **Visualizaciones**: Gráficos interactivos con Plotly
+
+**Requisitos**:
+
+```bash
+# Ya instalado si usaste: pip install -r requirements.txt
+pip install streamlit plotly
+```
+
+**Capturas**:
+
+El dashboard incluye:
+
+- Gráficos de pastel para distribución de actividades por tipo
+- Gráficos de líneas para evolución temporal
+- Gráficos de barras para comparativas
+- Tablas interactivas con ordenación y filtrado
+- Exportación de datos a CSV
 
 ### Comandos legacy (deprecados pero funcionales)
 
@@ -709,8 +782,9 @@ Consulta [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) para detalles de l
 **Futuro** 🔵:
 
 - [ ] Publicación en PyPI
-- [ ] Dashboard web interactivo
+- [x] Dashboard web interactivo ✅
 - [ ] Análisis avanzados de rendimiento
+- [ ] Mapas de rutas interactivos en el dashboard
 
 ## Contribuir
 

@@ -5,7 +5,8 @@
       "Bash(move \"py_strava\\strava\\strava_bd_1.py\" \"py_strava\\strava\\strava_db_sqlite.py\")",
       "Bash(pip install:*)",
       "Bash(strava --help:*)",
-      "Bash(strava report --help:*)"
+      "Bash(strava report --help:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
