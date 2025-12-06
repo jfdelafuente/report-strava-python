@@ -5,6 +5,10 @@ requests>=2.31.0
 python-dateutil>=2.8.2
 click>=8.1.0
 
+# Dashboard dependencies
+streamlit>=1.52.0
+plotly>=6.5.0
+
 # Database drivers
 # psycopg2-binary>=2.9.9  # Comentado - requiere compilación en Windows
 # Si necesitas PostgreSQL, instala desde: https://www.lfd.uci.edu/~gohlke/pythonlibs/#psycopg
