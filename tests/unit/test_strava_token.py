@@ -11,12 +11,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from py_strava.api.auth import (
-    getTokenFromFile,
-    openTokenFile,
-    refreshToken,
-    saveTokenFile,
-)
+from py_strava.api.auth import getTokenFromFile, openTokenFile, refreshToken, saveTokenFile
 
 
 class TestStravaToken:

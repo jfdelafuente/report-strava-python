@@ -52,6 +52,7 @@ ACTIVITY_FIELDS = [
     "external_id",
 ]
 
+
 def get_access_token(token_file: str) -> Optional[str]:
     """
     Obtiene un token de acceso válido de Strava.
