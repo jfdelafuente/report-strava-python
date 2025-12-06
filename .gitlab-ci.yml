@@ -1,0 +1,272 @@
+# GitLab CI/CD Configuration for py-strava
+# Python project with CLI, tests, linting, and deployment
+
+# Stages de CI/CD
+stages:
+  - test        # Tests unitarios y de integración
+  - quality     # Linting, type checking, coverage
+  - build       # Build del paquete
+  - deploy      # Deploy a PyPI (opcional)
+
+# Variables globales
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PYTHONUNBUFFERED: "1"
+
+# Cache de dependencias de Python
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+# Template base para jobs de Python
+.python_job:
+  image: python:3.8
+  before_script:
+    - python --version
+    - pip install --upgrade pip
+    - pip install -e ".[dev]"
+
+# ================================
+# STAGE: TEST
+# ================================
+
+# Tests en Python 3.8
+test:python3.8:
+  extends: .python_job
+  stage: test
+  image: python:3.8
+  script:
+    - echo "Running tests on Python 3.8..."
+    - pytest tests/ -v --cov=py_strava --cov-report=term --cov-report=xml --cov-report=html
+  coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - htmlcov/
+    expire_in: 1 week
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Tests en Python 3.9
+test:python3.9:
+  extends: .python_job
+  stage: test
+  image: python:3.9
+  script:
+    - echo "Running tests on Python 3.9..."
+    - pytest tests/ -v --cov=py_strava
+  allow_failure: false
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Tests en Python 3.10
+test:python3.10:
+  extends: .python_job
+  stage: test
+  image: python:3.10
+  script:
+    - echo "Running tests on Python 3.10..."
+    - pytest tests/ -v --cov=py_strava
+  allow_failure: false
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Tests en Python 3.11
+test:python3.11:
+  extends: .python_job
+  stage: test
+  image: python:3.11
+  script:
+    - echo "Running tests on Python 3.11..."
+    - pytest tests/ -v --cov=py_strava
+  allow_failure: true  # Optional support
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ================================
+# STAGE: QUALITY
+# ================================
+
+# Linting con flake8
+lint:flake8:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Running flake8 linting..."
+    - flake8 py_strava/ --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 py_strava/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Code formatting con black
+format:black:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Checking code formatting with black..."
+    - black --check py_strava/ tests/
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Import sorting con isort
+format:isort:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Checking import sorting with isort..."
+    - isort --check-only py_strava/ tests/
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Type checking con mypy
+typecheck:mypy:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Running type checking with mypy..."
+    - mypy py_strava/ --ignore-missing-imports
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Security check con bandit
+security:bandit:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Running security checks with bandit..."
+    - pip install bandit
+    - bandit -r py_strava/ -ll
+  allow_failure: true
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ================================
+# STAGE: BUILD
+# ================================
+
+# Build del paquete
+build:package:
+  extends: .python_job
+  stage: build
+  script:
+    - echo "Building package..."
+    - pip install build
+    - python -m build
+    - ls -lh dist/
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - main
+    - tags
+
+# Validar instalación del paquete
+build:validate:
+  extends: .python_job
+  stage: build
+  script:
+    - echo "Validating package installation..."
+    - pip install dist/*.whl
+    - strava --version
+    - strava --help
+  dependencies:
+    - build:package
+  only:
+    - main
+    - tags
+
+# ================================
+# STAGE: DEPLOY
+# ================================
+
+# Deploy a PyPI (solo en tags)
+deploy:pypi:
+  extends: .python_job
+  stage: deploy
+  script:
+    - echo "Deploying to PyPI..."
+    - pip install twine
+    - twine check dist/*
+    # Descomentar cuando estés listo para publicar en PyPI
+    # - twine upload dist/* -u __token__ -p $PYPI_TOKEN
+  dependencies:
+    - build:package
+  only:
+    - tags
+  when: manual  # Requiere aprobación manual
+
+# Deploy a Test PyPI (para testing)
+deploy:test-pypi:
+  extends: .python_job
+  stage: deploy
+  script:
+    - echo "Deploying to Test PyPI..."
+    - pip install twine
+    - twine check dist/*
+    # Descomentar para probar en Test PyPI
+    # - twine upload --repository testpypi dist/* -u __token__ -p $TEST_PYPI_TOKEN
+  dependencies:
+    - build:package
+  only:
+    - develop
+  when: manual
+
+# ================================
+# JOBS ADICIONALES
+# ================================
+
+# Documentación
+docs:build:
+  extends: .python_job
+  stage: quality
+  script:
+    - echo "Building documentation..."
+    - pip install sphinx sphinx-rtd-theme
+    # - cd docs && make html
+    - echo "Documentation would be built here"
+  allow_failure: true
+  only:
+    - main
+    - develop
+
+# Release notes
+release:notes:
+  image: alpine:latest
+  stage: deploy
+  before_script:
+    - apk add --no-cache git
+  script:
+    - echo "Generating release notes from CHANGELOG.md..."
+    - cat CHANGELOG.md | head -50
+  only:
+    - tags
+  artifacts:
+    paths:
+      - CHANGELOG.md
+    expire_in: never

@@ -1,9 +1,36 @@
 -r base.txt
 
-# Development tools
+# Testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
-mypy>=1.7.0
-black>=23.12.0
-flake8>=6.1.0
-isort>=5.12.0
+pytest-xdist>=3.5.0        # Parallel test execution
+pytest-watch>=4.2.0        # Watch mode for tests
+coverage[toml]>=7.4.0      # Coverage with toml support
+
+# Code Quality
+mypy>=1.7.0                # Type checking
+black>=23.12.0             # Code formatter
+flake8>=6.1.0              # Linting
+flake8-docstrings>=1.7.0   # Docstring linting
+isort>=5.12.0              # Import sorting
+pylint>=3.0.0              # Additional linting
+
+# Security
+bandit>=1.7.0              # Security linting
+safety>=2.3.0              # Dependency security check
+
+# Build & Deploy
+build>=1.0.0               # Build tool (PEP 517)
+twine>=4.0.0               # PyPI upload tool
+wheel>=0.42.0              # Wheel distribution
+
+# Documentation
+sphinx>=7.2.0              # Documentation generator
+sphinx-rtd-theme>=2.0.0    # Read the Docs theme
+
+# Pre-commit
+pre-commit>=3.6.0          # Pre-commit hooks framework
+
+# Development utilities
+ipython>=8.18.0            # Enhanced REPL
+ipdb>=0.13.0               # IPython debugger

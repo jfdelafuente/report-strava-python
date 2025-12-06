@@ -7,28 +7,28 @@ Este script crea las tablas necesarias para almacenar:
 - Kudos: Kudos recibidos en cada actividad
 
 Uso:
-    python init_database.py              # Crear tablas si no existen
-    python init_database.py --reset      # Eliminar y recrear todas las tablas (¡CUIDADO!)
-    python init_database.py --verify     # Verificar que las tablas existen
+    python scripts/init_database.py              # Crear tablas si no existen
+    python scripts/init_database.py --reset      # Eliminar y recrear todas las tablas (¡CUIDADO!)
+    python scripts/init_database.py --verify     # Verificar que las tablas existen
 """
 
-import sys
 import argparse
 import logging
+import sys
 from pathlib import Path
 
 # Configurar logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Asegurar que el directorio py_strava esté en el path
-sys.path.insert(0, str(Path(__file__).parent))
+# Añadir el directorio raíz del proyecto al path de Python
+# Esto permite importar py_strava desde cualquier ubicación
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from py_strava.strava import strava_db_sqlite as db
-from py_strava import db_schema
+# Usar nuevos imports reorganizados
+from py_strava.database import schema as db_schema
+from py_strava.database import sqlite as db
 
 
 def get_db_path() -> Path:
@@ -38,13 +38,13 @@ def get_db_path() -> Path:
     Returns:
         Path: Ruta al archivo strava.sqlite
     """
-    base_dir = Path(__file__).parent
-    db_dir = base_dir / 'bd'
+    # Usar la raíz del proyecto
+    db_dir = project_root / "bd"
 
     # Crear directorio si no existe
     db_dir.mkdir(exist_ok=True)
 
-    return db_dir / 'strava.sqlite'
+    return db_dir / "strava.sqlite"
 
 
 def verify_tables(conn) -> bool:
@@ -57,16 +57,14 @@ def verify_tables(conn) -> bool:
     Returns:
         bool: True si todas las tablas existen, False en caso contrario
     """
-    tables = ['Activities', 'Kudos']
+    tables = ["Activities", "Kudos"]
     all_exist = True
 
     logger.info("Verificando tablas existentes...")
 
     for table in tables:
         result = db.fetch_one(
-            conn,
-            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-            (table,)
+            conn, "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)
         )
 
         if result:
@@ -117,7 +115,7 @@ def reset_database(conn) -> None:
 
     response = input("¿Estás seguro de que quieres continuar? (escribe 'SI' para confirmar): ")
 
-    if response != 'SI':
+    if response != "SI":
         logger.info("Operación cancelada por el usuario")
         return
 
@@ -149,42 +147,38 @@ def show_database_stats(conn) -> None:
 
     # Contar actividades
     result = db.fetch_one(conn, "SELECT COUNT(*) as count FROM Activities")
-    activities_count = result['count'] if result else 0
+    activities_count = result["count"] if result else 0
     logger.info(f"  Activities: {activities_count} registros")
 
     # Contar kudos
     result = db.fetch_one(conn, "SELECT COUNT(*) as count FROM Kudos")
-    kudos_count = result['count'] if result else 0
+    kudos_count = result["count"] if result else 0
     logger.info(f"  Kudos: {kudos_count} registros")
 
     logger.info("=" * 60)
 
 
 def main():
-    """
-    Función principal del script.
-    """
+    """Función principal del script."""
     parser = argparse.ArgumentParser(
-        description='Inicializa la base de datos SQLite de Strava',
+        description="Inicializa la base de datos SQLite de Strava",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:
   python init_database.py              # Crear tablas si no existen
   python init_database.py --reset      # Eliminar y recrear todas las tablas
   python init_database.py --verify     # Solo verificar tablas existentes
-        """
+        """,
     )
 
     parser.add_argument(
-        '--reset',
-        action='store_true',
-        help='Eliminar y recrear todas las tablas (¡elimina todos los datos!)'
+        "--reset",
+        action="store_true",
+        help="Eliminar y recrear todas las tablas (¡elimina todos los datos!)",
     )
 
     parser.add_argument(
-        '--verify',
-        action='store_true',
-        help='Solo verificar que las tablas existan'
+        "--verify", action="store_true", help="Solo verificar que las tablas existan"
     )
 
     args = parser.parse_args()
