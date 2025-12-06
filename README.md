@@ -1,10 +1,10 @@
-# py-strava
+# report-strava-python
 
 Aplicación Python profesional para sincronizar y analizar actividades de Strava con base de datos local.
 
 ## Descripción
 
-**py-strava** es una herramienta CLI profesional que permite:
+**report-strava-python** es una herramienta CLI profesional que permite:
 
 - Sincronizar automáticamente tus actividades de Strava con una base de datos local
 - Almacenar información detallada de actividades y kudos recibidos
@@ -54,6 +54,10 @@ report-strava-python/
 │   │   ├── postgres.py     # Driver PostgreSQL
 │   │   └── schema.py       # Esquemas SQL
 │   │
+│   ├── dashboard/          # 🆕 Dashboard web interactivo
+│   │   ├── __init__.py     # Módulo dashboard
+│   │   └── data_loader.py  # Carga y procesamiento de datos
+│   │
 │   ├── utils/              # Utilidades generales
 │   │   └── dates.py        # Manejo de fechas
 │   │
@@ -74,14 +78,21 @@ report-strava-python/
 │   └── config.py           # Configuración global
 │
 ├── scripts/                # Scripts de utilidad
-│   ├── init_database.py
-│   ├── ejemplo_uso_bd.py
-│   └── test_setup.py
+│   ├── 01_get_token.py     # Obtención de tokens OAuth2
+│   ├── init_database.py    # Inicialización de BD
+│   ├── test_setup.py       # Verificación de instalación
+│   └── check_dashboard_ready.py  # 🆕 Verificar dashboard
 │
 ├── docs/                   # Documentación
 │   ├── user/               # Guías de usuario
+│   │   ├── DASHBOARD.md    # 🆕 Guía del dashboard
+│   │   ├── GET_TOKEN.md
+│   │   └── INICIO_RAPIDO.md
 │   ├── dev/                # Documentación técnica
 │   └── database/           # Docs de BD
+│
+├── .streamlit/             # 🆕 Configuración Streamlit
+│   └── config.toml         # Tema y configuración del dashboard
 │
 ├── requirements/           # Dependencias por entorno
 │   ├── base.txt
@@ -92,8 +103,14 @@ report-strava-python/
 ├── bd/                     # Base de datos SQLite
 ├── json/                   # Configuración (tokens)
 │
+├── dashboard_app.py        # 🆕 Aplicación principal del dashboard
+├── run_dashboard.bat       # 🆕 Lanzador Windows
+├── run_dashboard.sh        # 🆕 Lanzador Linux/Mac
+├── DASHBOARD_README.md     # 🆕 Documentación del dashboard
+│
 ├── setup.py                # Instalación pip
 ├── pyproject.toml          # Configuración moderna
+├── requirements.txt        # Dependencias principales
 ├── CHANGELOG.md            # Historial de cambios
 └── README.md               # Este archivo
 ```
