@@ -1,15 +1,16 @@
 """Tests unitarios para el módulo core/reports.py."""
 
-import pytest
-from pathlib import Path
 import csv
+from pathlib import Path
+
+import pytest
 
 
 @pytest.fixture
 def test_db_with_data(tmp_path):
     """Crea una BD temporal con datos de test."""
-    from py_strava.database import sqlite as db
     from py_strava.database import schema
+    from py_strava.database import sqlite as db
 
     db_path = tmp_path / "test_reports.sqlite"
     conn = db.sql_connection(str(db_path))
@@ -126,9 +127,9 @@ class TestFetchKudosData:
 
     def test_fetch_kudos_data_empty_database(self, tmp_path):
         """Verificar comportamiento con BD vacía."""
-        from py_strava.database import sqlite as db
-        from py_strava.database import schema
         from py_strava.core.reports import connect_to_database, fetch_kudos_data
+        from py_strava.database import schema
+        from py_strava.database import sqlite as db
 
         # Crear BD vacía
         db_path = tmp_path / "empty.sqlite"
@@ -151,10 +152,6 @@ class TestFetchKudosData:
         conn = connect_to_database(test_db_with_data)
         results = fetch_kudos_data(conn)
 
-        # Debe estar ordenado por start_date_local DESC, lastname, firstname
-        # El último registro (más reciente) debe aparecer primero
-        first_result = results[0]
-
         # Verificar que hay datos
         assert len(results) > 0
 
@@ -166,7 +163,7 @@ class TestExportToCSV:
 
     def test_export_to_csv_creates_file(self, tmp_path):
         """Verificar que export_to_csv crea el archivo."""
-        from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, export_to_csv
 
         output_file = tmp_path / "test_output.csv"
         data = [("John", "Doe", "Run", 123, "2025-12-04")]
@@ -178,7 +175,7 @@ class TestExportToCSV:
 
     def test_export_to_csv_content(self, tmp_path):
         """Verificar que el contenido del CSV es correcto."""
-        from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, export_to_csv
 
         output_file = tmp_path / "test_output.csv"
         data = [
@@ -200,7 +197,7 @@ class TestExportToCSV:
 
     def test_export_to_csv_creates_parent_directory(self, tmp_path):
         """Verificar que export_to_csv crea directorios padre si no existen."""
-        from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, export_to_csv
 
         output_file = tmp_path / "subdir" / "nested" / "output.csv"
         data = [("Test", "User", "Run", 1, "2025-12-04")]
@@ -213,7 +210,7 @@ class TestExportToCSV:
 
     def test_export_to_csv_empty_data(self, tmp_path):
         """Verificar comportamiento con datos vacíos."""
-        from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, export_to_csv
 
         output_file = tmp_path / "empty.csv"
         data = []
@@ -225,7 +222,7 @@ class TestExportToCSV:
 
     def test_export_to_csv_special_characters(self, tmp_path):
         """Verificar que maneja caracteres especiales correctamente."""
-        from py_strava.core.reports import export_to_csv, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, export_to_csv
 
         output_file = tmp_path / "special.csv"
         data = [
@@ -262,7 +259,7 @@ class TestGenerateKudosReport:
 
     def test_generate_kudos_report_content(self, test_db_with_data, tmp_path):
         """Verificar que el contenido del informe es correcto."""
-        from py_strava.core.reports import generate_kudos_report, CSV_FIELDNAMES
+        from py_strava.core.reports import CSV_FIELDNAMES, generate_kudos_report
 
         output_file = tmp_path / "kudos_report.csv"
 
@@ -322,7 +319,7 @@ class TestRunReport:
 
     def test_run_report_default_parameters(self, test_db_with_data):
         """Verificar que run_report usa parámetros por defecto."""
-        from py_strava.core.reports import run_report, DEFAULT_DB_PATH, DEFAULT_OUTPUT_CSV
+        from py_strava.core.reports import DEFAULT_DB_PATH, DEFAULT_OUTPUT_CSV
 
         # Esta función usa defaults, verificamos que están definidos
         assert DEFAULT_DB_PATH is not None
@@ -400,10 +397,10 @@ class TestIntegration:
     def test_full_report_generation_workflow(self, test_db_with_data, tmp_path):
         """Verificar el flujo completo de generación de informe."""
         from py_strava.core.reports import (
-            connect_to_database,
-            fetch_kudos_data,
-            export_to_csv,
             CSV_FIELDNAMES,
+            connect_to_database,
+            export_to_csv,
+            fetch_kudos_data,
         )
 
         output_file = tmp_path / "integration_test.csv"

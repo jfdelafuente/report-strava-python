@@ -1,6 +1,4 @@
-"""
-Configuración centralizada para la aplicación de Strava.
-"""
+"""Configuración centralizada para la aplicación de Strava."""
 
 import os
 from pathlib import Path

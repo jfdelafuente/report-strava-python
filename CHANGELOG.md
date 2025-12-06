@@ -5,6 +5,72 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.0.0] - 2025-12-06
+
+### 💥 Breaking Changes
+
+#### Eliminado módulo deprecado `py_strava.strava`
+
+- **Eliminado completamente** el módulo `py_strava.strava` y todos sus submódulos
+- El módulo fue marcado como deprecado en v2.0.0 y toda funcionalidad fue migrada
+- **Acción requerida**: Actualizar imports a nueva estructura modular
+- Ver [GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md) para instrucciones detalladas
+
+**Migración de imports**:
+
+```python
+# Antes (v2.x) ❌
+from py_strava.strava import strava_token
+from py_strava.strava import strava_activities
+from py_strava.strava import strava_db_sqlite
+
+# Después (v3.0.0) ✅
+from py_strava.api import auth
+from py_strava.api import activities
+from py_strava.database import sqlite
+```
+
+#### Eliminada sincronización de kudos individuales
+
+- **Eliminada función** `load_kudos_to_db()` del módulo `core/sync.py`
+- Ya no se sincronizan kudos individuales en tabla `Kudos`
+- **Razón**: Alto costo en llamadas API vs bajo valor agregado
+- **Alternativa**: Campo `kudos_count` sigue disponible en cada actividad
+- Los datos existentes en tabla `Kudos` no se eliminan automáticamente
+
+**Cambio en return de `run_sync()`**:
+
+```python
+# Antes (v2.x)
+{"activities": 10, "kudos": 45, "db_type": "SQLite"}
+
+# Después (v3.0.0)
+{"activities": 10, "db_type": "SQLite"}
+```
+
+### Cambiado
+
+- Actualizado README.md eliminando referencias a kudos y módulo deprecado
+- Actualizados tests unitarios para usar nueva estructura de imports
+- Actualizado script de verificación `test_setup.py` con nuevos imports
+- Simplificado proceso de sincronización (sin llamadas individuales de kudos)
+
+### Documentación
+
+- ✅ Añadida [GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md) - Guía completa de migración
+- ✅ Añadida [ANALISIS_ELIMINACION_MODULO_STRAVA.md](docs/dev/ANALISIS_ELIMINACION_MODULO_STRAVA.md) - Análisis técnico
+- Actualizada estructura del proyecto en documentación
+
+### Mejoras
+
+- 📉 Reducción de ~2,500 líneas de código duplicado
+- 📦 Reducción del tamaño del paquete (~150 KB)
+- 🎯 Arquitectura más clara y mantenible
+- ⚡ Sincronización más rápida (sin llamadas extras de kudos)
+- 🔇 Eliminados warnings de deprecación en logs
+
+---
+
 ## [2.2.0] - 2025-12-03
 
 ### Añadido

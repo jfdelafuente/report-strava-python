@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
     help="Formato del reporte (por ahora solo CSV)",
 )
 def report(output, db_path, format):
-    """
+    r"""
     Generar reporte de actividades y kudos desde la base de datos.
 
     \b

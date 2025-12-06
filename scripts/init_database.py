@@ -159,9 +159,7 @@ def show_database_stats(conn) -> None:
 
 
 def main():
-    """
-    Función principal del script.
-    """
+    """Función principal del script."""
     parser = argparse.ArgumentParser(
         description="Inicializa la base de datos SQLite de Strava",
         formatter_class=argparse.RawDescriptionHelpFormatter,

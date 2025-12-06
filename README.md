@@ -15,47 +15,25 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 
 ## Características
 
-✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
-✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
-✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
-✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
-✅ **Base de datos**: Soporta SQLite y PostgreSQL
-✅ **Kudos tracking**: Registra todos los kudos recibidos en cada actividad
-✅ **Informes CSV**: Exporta datos para análisis externo
-✅ **Logging completo**: Sistema de logs estructurado para debugging
-✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
-✅ **Configuración flexible**: Variables de entorno y archivos de configuración
-✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
-
-## Inicio Rápido
-
-```bash
-# 1. Crear directorios necesarios
-mkdir -p bd data json
-
-# 2. Instalar el proyecto
-pip install -e .
-
-# 3. Configurar credenciales en json/strava_tokens.json (ver sección Configuración)
-
-# 4. Inicializar base de datos
-strava init-db
-
-# 5. Sincronizar actividades
-strava sync
-
-# 6. Generar reporte
-strava report
-```
+- ✅ **CLI Profesional**: Comandos intuitivos tipo `strava sync`, `strava report`
+- ✅ **Instalación con pip**: Instala con `pip install -e .` y usa desde cualquier directorio
+- ✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
+- ✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
+- ✅ **Base de datos**: Soporta SQLite y PostgreSQL
+- ✅ **Informes CSV**: Exporta datos para análisis externo
+- ✅ **Logging completo**: Sistema de logs estructurado para debugging
+- ✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
+- ✅ **Configuración flexible**: Variables de entorno y archivos de configuración
+- ✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
 
 ## Estructura del Proyecto
 
 ```plaintext
-py-strava/
+report-strava-python/
 ├── py_strava/              # Código fuente principal
 │   ├── api/                # Comunicación con Strava API
 │   │   ├── auth.py         # Autenticación OAuth2
-│   │   └── activities.py   # Gestión de actividades y kudos
+│   │   └── activities.py   # Gestión de actividades
 │   │
 │   ├── database/           # Persistencia de datos
 │   │   ├── sqlite.py       # Driver SQLite
@@ -77,7 +55,6 @@ py-strava/
 │   │       └── init_db.py
 │   │
 │   ├── legacy/             # Wrappers deprecados
-│   ├── strava/             # Módulos antiguos (deprecados)
 │   ├── main.py             # Wrapper legacy
 │   ├── informe_strava.py   # Wrapper legacy
 │   └── config.py           # Configuración global
@@ -121,20 +98,20 @@ py-strava/
 
 ```bash
 git clone https://gitlab.com/josefcodelafuente/py-strava.git
-cd py-strava
+cd report-strava-python
 ```
 
 ### 2. Crear entorno virtual
 
 ```bash
-python3.8 -m venv venv
+python -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 ```
 
 ### 3. Actualizar pip
 
 ```bash
-python3.8 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
 ### 4. Crear directorios necesarios
@@ -694,7 +671,7 @@ python -m py_strava.main
 
 ### Estructura del código
 
-Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para detalles de la arquitectura.
+Consulta [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) para detalles de la arquitectura.
 
 **Código principal**:
 
@@ -721,26 +698,19 @@ Consulta [PROPUESTA_REESTRUCTURACION.md](PROPUESTA_REESTRUCTURACION.md) para det
 
 ### Próximas mejoras planificadas
 
-Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) para el plan completo.
-
 **Completado** ✅:
 
 - [x] **Fase 1**: Reorganización de estructura y documentación
 - [x] **Fase 2**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
 - [x] **Fase 3**: CLI profesional con Click: `strava sync`, `strava report`, `strava init-db`
-
-**En progreso** 🔄:
-
-- [ ] **Fase 4**: Limpieza final y release v2.2.0
+- [x] **Fase 4**: Limpieza final y release v2.2.0
+- [x] **Fase 5**: Eliminación de módulos deprecados y release v3.0.0
 
 **Futuro** 🔵:
 
-- [ ] Tests unitarios con pytest
-- [ ] CI/CD con GitLab CI
-- [ ] Validación de tipos con mypy
-- [ ] Linting automático (black, flake8)
 - [ ] Publicación en PyPI
 - [ ] Dashboard web interactivo
+- [ ] Análisis avanzados de rendimiento
 
 ## Contribuir
 
@@ -780,19 +750,30 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 🚀 **Activo** - El proyecto está en desarrollo activo y se aceptan contribuciones.
 
-**Última actualización**: 3 de diciembre de 2025
-**Versión**: 2.2.0 (CLI Profesional - Fases 1-3 completadas)
-**Estado**: En Fase 4 (Limpieza y Release)
+**Última actualización**: 6 de diciembre de 2025
+**Versión**: 3.0.0 (Arquitectura Modular Consolidada - Breaking Changes)
+**Estado**: Todas las fases de reestructuración completadas ✅
 
 ### Roadmap
 
 - ✅ **Fase 1 (Completada)**: Reorganización de estructura y documentación
 - ✅ **Fase 2 (Completada)**: Refactoring de módulos en `api/`, `database/`, `core/`, `utils/`
 - ✅ **Fase 3 (Completada)**: CLI profesional con Click
-- 🔄 **Fase 4 (En Progreso)**: Limpieza y release v2.2.0
-- 🔵 **Futuro**: PyPI, tests, CI/CD
+- ✅ **Fase 4 (Completada)**: Limpieza y release v2.2.0
+- ✅ **Fase 5 (Completada)**: Eliminación de módulos deprecados (`py_strava.strava.*`) y release v3.0.0
+- 🔵 **Futuro**: PyPI, Dashboard web, Análisis avanzados
 
-Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) y [CHANGELOG.md](CHANGELOG.md) para detalles completos.
+### v3.0.0 Breaking Changes
+
+⚠️ **IMPORTANTE**: La versión 3.0.0 incluye cambios incompatibles con versiones anteriores:
+
+- **Eliminado módulo deprecado** `py_strava.strava.*` (~2,500 líneas de código)
+- **Eliminada sincronización de kudos individuales** (campo `kudos_count` aún disponible en Activities)
+- **Requerida migración de imports** de `py_strava.strava.*` a `py_strava.api.*`, `database.*`, `utils.*`
+
+📖 **Guía de migración completa**: [docs/dev/GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md)
+
+Ver [CHANGELOG.md](CHANGELOG.md) para detalles completos del historial de cambios.
 
 ---
 
@@ -801,10 +782,14 @@ Ver [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) y [CHANGELOG.md](CHANGELOG.md) 
 ### Documentación del Proyecto
 
 - [CHANGELOG.md](CHANGELOG.md) - Historial de cambios oficial
-- [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) - Arquitectura del proyecto v2.2.0
-- [ROADMAP_MIGRACION.md](ROADMAP_MIGRACION.md) - Plan de migración por fases
-- [docs/user/](docs/user/) - Guías para usuarios
-- [docs/dev/](docs/dev/) - Documentación técnica
+- [docs/dev/ARQUITECTURA.md](docs/dev/ARQUITECTURA.md) - Arquitectura del proyecto v3.0.0
+- [docs/dev/GUIA_MIGRACION_V3.md](docs/dev/GUIA_MIGRACION_V3.md) - **Guía de migración a v3.0.0** ⚠️
+- [docs/dev/ANALISIS_ELIMINACION_MODULO_STRAVA.md](docs/dev/ANALISIS_ELIMINACION_MODULO_STRAVA.md) - Análisis técnico de eliminación
+- [docs/user/GET_TOKEN.md](docs/user/GET_TOKEN.md) - Cómo obtener tokens de Strava
+- [docs/user/INICIO_RAPIDO.md](docs/user/INICIO_RAPIDO.md) - Guía de inicio rápido
+- [docs/user/SOLUCION_ERRORES.md](docs/user/SOLUCION_ERRORES.md) - Solución de problemas
+- [docs/database/INIT_DATABASE.md](docs/database/INIT_DATABASE.md) - Inicialización de base de datos
+- [docs/dev/](docs/dev/) - Documentación técnica completa
 - [docs/database/](docs/database/) - Documentación de base de datos
 
 ### Changelogs por Fase

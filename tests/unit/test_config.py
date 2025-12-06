@@ -3,8 +3,6 @@
 import os
 from pathlib import Path
 
-import pytest
-
 
 def test_config_imports():
     """Verificar que el módulo config se puede importar correctamente."""
@@ -137,11 +135,6 @@ def test_strava_api_configuration():
 def test_config_uses_environment_variables():
     """Verificar que config respeta variables de entorno."""
     import importlib
-
-    from py_strava import config
-
-    # Guardar valor original
-    original_log_level = config.LOG_LEVEL
 
     # Establecer variable de entorno
     os.environ["LOG_LEVEL"] = "DEBUG"

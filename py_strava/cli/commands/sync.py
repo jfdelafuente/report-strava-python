@@ -7,12 +7,10 @@ hacia la base de datos local.
 
 import logging
 from datetime import datetime
-from pathlib import Path
 
 import click
 
 from py_strava.core.sync import run_sync
-from py_strava.utils import dates as strava_dates
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +41,15 @@ logger = logging.getLogger(__name__)
 )
 @click.option("--force", is_flag=True, help="Forzar sincronización completa (ignorar última sync)")
 def sync(since, token_file, activities_log, db_path, force):
-    """
+    r"""
     Sincronizar actividades de Strava con la base de datos.
 
     \b
     Este comando:
     1. Obtiene un token de acceso válido (renovándolo si es necesario)
     2. Descarga actividades nuevas desde Strava API
-    3. Almacena las actividades en la base de datos
-    4. Descarga y almacena los kudos de cada actividad
-    5. Registra la fecha de sincronización
+    3. Almacena las actividades en la base de datos (incluye kudos_count)
+    4. Registra la fecha de sincronización
 
     \b
     Ejemplos:
@@ -80,7 +77,7 @@ def sync(since, token_file, activities_log, db_path, force):
                 click.echo(
                     f'[INFO] Sincronizando desde timestamp: {since_timestamp} ({dt.strftime("%Y-%m-%d %H:%M:%S")})'
                 )
-        except ValueError as e:
+        except ValueError:
             click.secho(f"[ERROR] Formato de fecha inválido: {since}", fg="red", err=True)
             click.echo("Usa formato YYYY-MM-DD o timestamp Unix", err=True)
             raise click.Abort()
@@ -102,9 +99,9 @@ def sync(since, token_file, activities_log, db_path, force):
         click.secho("[SUCCESS] Sincronización completada", fg="green", bold=True)
         click.echo("=" * 60)
         click.echo(f'  Actividades sincronizadas: {result["activities"]}')
-        click.echo(f'  Kudos procesados:          {result["kudos"]}')
         click.echo(f'  Base de datos:             {result["db_type"]}')
         click.echo("=" * 60)
+        click.echo("\n  💡 Tip: kudos_count está incluido en cada actividad")
 
         if result["activities"] == 0:
             click.secho("\n[INFO] No hay actividades nuevas para sincronizar", fg="yellow")

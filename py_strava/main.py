@@ -1,5 +1,5 @@
 """
-Script principal para sincronizar actividades y kudos de Strava con la base de datos.
+Script principal para sincronizar actividades de Strava con la base de datos.
 
 ADVERTENCIA: Este módulo es un wrapper de retrocompatibilidad.
 La lógica de sincronización se ha movido a py_strava.core.sync
@@ -12,8 +12,7 @@ Este script realiza las siguientes operaciones:
 1. Refresca el token de acceso de Strava
 2. Obtiene las actividades nuevas desde la última sincronización
 3. Almacena las actividades en la base de datos
-4. Obtiene y almacena los kudos de cada actividad
-5. Registra la fecha de la última sincronización
+4. Registra la fecha de la última sincronización
 """
 
 import logging

@@ -8,12 +8,11 @@ actividades, generar reportes e inicializar la base de datos.
 
 import logging
 import sys
-from pathlib import Path
 
 import click
 
 # Configuración de versión
-__version__ = "2.2.0"
+__version__ = "3.0.0"
 
 
 @click.group()
@@ -31,7 +30,7 @@ __version__ = "2.2.0"
     "--quiet", "-q", is_flag=True, help="Modo silencioso (equivalente a --log-level ERROR)"
 )
 def cli(log_level, verbose, quiet):
-    """
+    r"""
     Strava CLI - Sincroniza y analiza actividades de Strava.
 
     \b

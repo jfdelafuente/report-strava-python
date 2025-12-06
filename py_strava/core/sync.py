@@ -1,8 +1,8 @@
 """
-Módulo de sincronización de actividades y kudos de Strava.
+Módulo de sincronización de actividades de Strava.
 
 Este módulo contiene la lógica de negocio para sincronizar actividades
-y kudos desde la API de Strava hacia la base de datos.
+desde la API de Strava hacia la base de datos.
 """
 
 import csv
@@ -51,8 +51,6 @@ ACTIVITY_FIELDS = [
     "kudos_count",
     "external_id",
 ]
-
-KUDOS_FIELDS = ["firstname", "lastname"]
 
 
 def get_access_token(token_file: str) -> Optional[str]:
@@ -166,68 +164,6 @@ def load_activities_to_db(conn, activities: pd.DataFrame) -> int:
         return count
 
 
-def load_kudos_to_db(conn, access_token: str, activity_ids: list) -> int:
-    """
-    Carga los kudos de las actividades en la base de datos usando batch insert.
-
-    Args:
-        conn: Conexión a la base de datos
-        access_token: Token de acceso de Strava
-        activity_ids: Lista de IDs de actividades
-
-    Returns:
-        Número total de kudos cargados
-    """
-    all_kudos_records = []
-
-    # Recopilar todos los kudos de todas las actividades
-    for activity_id in activity_ids:
-        try:
-            kudos = stravaActivities.request_kudos(access_token, activity_id)
-
-            if kudos.empty:
-                continue
-
-            # Preparar registros de kudos para esta actividad
-            for _, kudo_row in kudos.iterrows():
-                record = {
-                    "id_activity": activity_id,
-                    "firstname": kudo_row["firstname"],
-                    "lastname": kudo_row["lastname"],
-                }
-                all_kudos_records.append(record)
-
-        except Exception as ex:
-            logger.error(f"Error al obtener kudos de actividad {activity_id}: {ex}")
-            continue
-
-    # Insertar todos los kudos en una sola operación batch
-    if all_kudos_records:
-        try:
-            total_kudos = stravaBBDD.insert_many(conn, "Kudos", all_kudos_records)
-            logger.info(f"{total_kudos} kudos cargados en la base de datos (batch insert)")
-            return total_kudos
-        except Exception as ex:
-            logger.error(f"Error al insertar kudos con batch insert: {ex}")
-            logger.info("Intentando inserción individual como fallback...")
-
-            # Fallback: insertar uno por uno
-            total_kudos = 0
-            for record in all_kudos_records:
-                try:
-                    stravaBBDD.insert(conn, "Kudos", record)
-                    total_kudos += 1
-                except Exception as ex:
-                    logger.error(f"Error al insertar kudo: {ex}")
-                    continue
-
-            logger.info(f"{total_kudos} kudos cargados (inserción individual)")
-            return total_kudos
-    else:
-        logger.info("No hay kudos para cargar")
-        return 0
-
-
 def update_sync_log(log_file: str, num_activities: int) -> None:
     """
     Actualiza el log de sincronización con la fecha actual.
@@ -253,7 +189,7 @@ def run_sync(
     since: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
-    Ejecuta el proceso de sincronización completo de actividades y kudos.
+    Ejecuta el proceso de sincronización completo de actividades.
 
     Args:
         token_file: Ruta al archivo JSON con los tokens de Strava
@@ -264,7 +200,6 @@ def run_sync(
     Returns:
         Dict con estadísticas de la sincronización:
             - activities: número de actividades sincronizadas
-            - kudos: número de kudos sincronizados
             - db_type: tipo de base de datos utilizada
     """
     logger.info("=== Inicio de sincronización de Strava ===")
@@ -294,7 +229,7 @@ def run_sync(
 
     if activities.empty:
         logger.info("No hay actividades nuevas. Finalizando.")
-        return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
+        return {"activities": 0, "db_type": DB_TYPE}
 
     # Usar context manager para manejo automático de la conexión
     try:
@@ -308,11 +243,7 @@ def run_sync(
 
                 if num_loaded == 0:
                     logger.info("No se pudieron cargar actividades. Finalizando.")
-                    return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
-
-                # Obtener y cargar kudos
-                activity_ids = activities["id"].tolist()
-                num_kudos = load_kudos_to_db(conn, access_token, activity_ids)
+                    return {"activities": 0, "db_type": DB_TYPE}
 
                 # La conexión se cierra y commitea automáticamente al salir del context manager
                 logger.info("Datos guardados exitosamente")
@@ -325,11 +256,7 @@ def run_sync(
 
                 if num_loaded == 0:
                     logger.info("No se pudieron cargar actividades. Finalizando.")
-                    return {"activities": 0, "kudos": 0, "db_type": DB_TYPE}
-
-                # Obtener y cargar kudos
-                activity_ids = activities["id"].tolist()
-                num_kudos = load_kudos_to_db(conn, access_token, activity_ids)
+                    return {"activities": 0, "db_type": DB_TYPE}
 
                 # La conexión se cierra y commitea automáticamente al salir del context manager
                 logger.info("Datos guardados exitosamente")
@@ -343,4 +270,4 @@ def run_sync(
 
     logger.info("=== Sincronización completada exitosamente ===")
 
-    return {"activities": num_loaded, "kudos": num_kudos, "db_type": DB_TYPE}
+    return {"activities": num_loaded, "db_type": DB_TYPE}

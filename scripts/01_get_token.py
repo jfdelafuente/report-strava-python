@@ -24,21 +24,21 @@ Fecha: 2025-12-03
 Versión: 1.0.0
 """
 
-import sys
-import os
-import json
 import argparse
+import json
+import os
+import sys
 import webbrowser
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 # Agregar el directorio raíz al path para imports
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 try:
-    from py_strava.api.auth import StravaTokenManager, StravaAuthError
+    from py_strava.api.auth import StravaAuthError, StravaTokenManager
 except ImportError as e:
     print(f"❌ Error al importar módulos: {e}")
     print(f"   Asegúrate de estar en el directorio raíz del proyecto: {ROOT_DIR}")
@@ -173,7 +173,7 @@ def display_token_info(tokens: Dict[str, Any]) -> None:
     # Información del atleta (si está disponible)
     athlete = tokens.get("athlete", {})
     if athlete:
-        print(f"\n👤 Información del atleta:")
+        print("\n👤 Información del atleta:")
         print(f"   Nombre:         {athlete.get('firstname', '')} {athlete.get('lastname', '')}")
         print(f"   ID:             {athlete.get('id', 'N/A')}")
 
