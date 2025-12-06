@@ -20,33 +20,11 @@ El proyecto ha sido completamente refactorizado siguiendo las mejores prácticas
 ✅ **Sincronización automática**: Obtiene actividades nuevas desde la última sincronización
 ✅ **Gestión de tokens**: Refresca automáticamente el token de acceso de Strava
 ✅ **Base de datos**: Soporta SQLite y PostgreSQL
-✅ **Kudos tracking**: Registra todos los kudos recibidos en cada actividad
 ✅ **Informes CSV**: Exporta datos para análisis externo
 ✅ **Logging completo**: Sistema de logs estructurado para debugging
 ✅ **Manejo de errores**: Procesamiento robusto que continúa ante fallos individuales
 ✅ **Configuración flexible**: Variables de entorno y archivos de configuración
 ✅ **Help integrado**: Ayuda contextual en todos los comandos con `--help`
-
-## Inicio Rápido
-
-```bash
-# 1. Crear directorios necesarios
-mkdir -p bd data json
-
-# 2. Instalar el proyecto
-pip install -e .
-
-# 3. Configurar credenciales en json/strava_tokens.json (ver sección Configuración)
-
-# 4. Inicializar base de datos
-strava init-db
-
-# 5. Sincronizar actividades
-strava sync
-
-# 6. Generar reporte
-strava report
-```
 
 ## Estructura del Proyecto
 
@@ -55,7 +33,7 @@ py-strava/
 ├── py_strava/              # Código fuente principal
 │   ├── api/                # Comunicación con Strava API
 │   │   ├── auth.py         # Autenticación OAuth2
-│   │   └── activities.py   # Gestión de actividades y kudos
+│   │   └── activities.py   # Gestión de actividades
 │   │
 │   ├── database/           # Persistencia de datos
 │   │   ├── sqlite.py       # Driver SQLite
@@ -77,7 +55,6 @@ py-strava/
 │   │       └── init_db.py
 │   │
 │   ├── legacy/             # Wrappers deprecados
-│   ├── strava/             # Módulos antiguos (deprecados)
 │   ├── main.py             # Wrapper legacy
 │   ├── informe_strava.py   # Wrapper legacy
 │   └── config.py           # Configuración global
@@ -127,14 +104,14 @@ cd py-strava
 ### 2. Crear entorno virtual
 
 ```bash
-python3.8 -m venv venv
+python -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 ```
 
 ### 3. Actualizar pip
 
 ```bash
-python3.8 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
 ### 4. Crear directorios necesarios

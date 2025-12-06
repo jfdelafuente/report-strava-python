@@ -1,6 +1,6 @@
 import unittest
 
-from py_strava.strava.strava_fechas import last_timestamp, timestamp_to_unix
+from py_strava.utils.dates import last_timestamp, timestamp_to_unix
 
 
 class TestFechas(unittest.TestCase):

@@ -28,7 +28,7 @@ if requirements_file.exists():
 
 setup(
     name="py-strava",
-    version="2.2.0",
+    version="3.0.0",
     description="Sincroniza y analiza actividades de Strava",
     long_description=long_description,
     long_description_content_type="text/markdown",

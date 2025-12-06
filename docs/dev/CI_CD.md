@@ -47,7 +47,7 @@ El pipeline de GitLab CI/CD tiene 4 stages:
 
 #### Stage: Test
 
-- **test:python3.8** - Tests en Python 3.8 (obligatorio)
+- **test:python** - Tests en Python 3.8 (obligatorio)
 - **test:python3.9** - Tests en Python 3.9 (obligatorio)
 - **test:python3.10** - Tests en Python 3.10 (obligatorio)
 - **test:python3.11** - Tests en Python 3.11 (opcional)

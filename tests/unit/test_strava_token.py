@@ -1,7 +1,6 @@
 """
-Tests para el módulo strava_token_1 (legacy).
+Tests para el módulo de autenticación (auth).
 
-NOTA: Este es un módulo legacy que será reemplazado.
 Los tests usan mocks para evitar llamadas reales a la API de Strava.
 """
 
@@ -12,7 +11,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from py_strava.strava.strava_token_1 import (
+from py_strava.api.auth import (
     getTokenFromFile,
     openTokenFile,
     refreshToken,
@@ -60,7 +59,7 @@ class TestStravaToken:
             "access_token": "new_token",
             "refresh_token": self.refresh_token,
         }
-        mocker.patch("py_strava.strava.strava_token_1.requests.post", return_value=mock_response)
+        mocker.patch("py_strava.api.auth.requests.post", return_value=mock_response)
 
         # Ejecutar con archivo temporal
         strava_tokens = refreshToken(getTokenFromFile(str(temp_token_file)), str(temp_token_file))
@@ -84,7 +83,7 @@ class TestStravaToken:
             **self.strava_tokens_json,
             "access_token": self.access_token,
         }
-        mocker.patch("py_strava.strava.strava_token_1.requests.post", return_value=mock_response)
+        mocker.patch("py_strava.api.auth.requests.post", return_value=mock_response)
 
         # Ejecutar con archivo temporal
         strava_tokens = refreshToken(getTokenFromFile(str(temp_token_file)), str(temp_token_file))
@@ -156,7 +155,7 @@ class TestStravaTokenAdvanced:
         mock_response = Mock()
         mock_response.json.return_value = refreshed_token_response
 
-        mock_post = mocker.patch("py_strava.strava.strava_token_1.requests.post")
+        mock_post = mocker.patch("py_strava.api.auth.requests.post")
         mock_post.return_value = mock_response
 
         # Guardar token expirado
@@ -185,7 +184,7 @@ class TestStravaTokenAdvanced:
     def test_refresh_token_when_not_expired(self, token_file_path, valid_token_data, mocker):
         """Verificar que refreshToken NO actualiza el token cuando aún es válido."""
         # Mock de requests.post (no debería llamarse)
-        mock_post = mocker.patch("py_strava.strava.strava_token_1.requests.post")
+        mock_post = mocker.patch("py_strava.api.auth.requests.post")
 
         # Ejecutar refresh con token válido
         result = refreshToken(valid_token_data, token_file_path)
